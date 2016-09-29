@@ -3,21 +3,18 @@ import re
 from mattermost_bot.bot import listen_to
 from mattermost_bot.bot import respond_to
 
-
-@respond_to('hi', re.IGNORECASE)
+@respond_to('salut', re.IGNORECASE)
 def hi(message):
-        message.reply('I can understand hi or HI!')
+        message.reply('aaaaaayyyee')
 
+@listen_to('.*anime.*', re.IGNORECASE)
+def disguted(message):
+    message.send('### Disgusting weebs rolf :huel:')
 
-@respond_to('I love you')
-def love(message):
-        message.reply('I love you too!')
+@listen_to('.*vidya|bonshommes.*', re.IGNORECASE)
+def quel_age(message):
+    message.send('rolf vous avez quel age?')
 
-
-@listen_to('Can someone help me?')
-def help_me(message):
-        # Message is replied to the sender (prefixed with @user)
-        message.reply('Yes, I can!')
-
-                # Message is sent on the channel
-                    # message.send('I can help everybody!')
+@listen_to('.*nodame.*', re.IGNORECASE)
+def nodame(message):
+    message.send('ruffles what a shit show')
