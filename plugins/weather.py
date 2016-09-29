@@ -33,12 +33,22 @@ init()
 
 def get_weather(location=None):
     # weird bug where I don't know why len(location) is 1 when no location is passed...
-    if (len(location) <2):
-        location = 'Montreal'
+    if (location is not None):
+        location.strip(' \t\n\r')
+        valid = re.match('^[\w-]+$', location) is not None
+        if (valid):
+             request_url = url(location=location, key=config_api_key)
+        else:
+            return 'Bin voyons donc ca existe pas ' + location + ' comme ville'
+    else:
+        request_url = url(location='Montreal', key=config_api_key)
+        location='Montreal'
     request_url = url(location=location, key=config_api_key)
     r = requests.get(request_url)
-    payload_text = build_response_text(r.json(), location)
-    return payload_text
+    print(request_url)
+    print(r.json())
+    text = build_response_text(r.json(), location)
+    return text
 
 def get_embedded_icon_url(icon_code, desc):
     """Returns a formatted markdown line to show the weather icon"""
@@ -65,9 +75,7 @@ def build_response_text(data, location):
 
 | Day | Description | High | Low |
 |:---------------------------|:------------------------------------|:--------|:--------|\n""".format(location=location)
-    print(data)
     for day in data['list']:
         payload_text += get_day_weather_line(day)
-    print(payload_text)
 
     return payload_text

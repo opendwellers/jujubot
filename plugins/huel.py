@@ -7,7 +7,11 @@ from mattermost_bot.bot import respond_to
 def hi(message):
         message.reply('aaaaaayyyee')
 
-@listen_to('.*anime.*', re.IGNORECASE)
+@respond_to('thanks|merci|ty|thx', re.IGNORECASE)
+def hi(message):
+        message.reply('de rien la')
+
+@listen_to('.* *anime.*', re.IGNORECASE)
 def disguted(message):
     message.send('### Disgusting weebs rolf :huel:')
 
@@ -15,6 +19,11 @@ def disguted(message):
 def quel_age(message):
     message.send('rolf vous avez quel age?')
 
-@listen_to('.*nodame.*', re.IGNORECASE)
-def nodame(message):
-    message.send('ruffles what a shit show')
+@listen_to('.*(xd+).*', re.IGNORECASE)
+def reply_xd(message, xd):
+    message.send('haha '+ xd)
+
+@listen_to('peace|bye|:wave:|alp|see ya|au revoir|ciao|chow', re.IGNORECASE)
+def reply_xd(message):
+    message.send('hey bye la')
+
