@@ -27,3 +27,6 @@ def reply_xd(message, xd):
 def reply_xd(message):
     message.send('hey bye la')
 
+@listen_to('bon matin|morning|mornin', re.IGNORECASE)
+def reply_xd(message):
+    message.send('zzzz kill me now')
