@@ -17,12 +17,15 @@ def hi(message, id=None):
             url = 'https://api.opendota.com/api/players/{player_id}'.format(player_id=id)
             r = requests.get(url)
             array = r.json()
-            mmr = array['solo_competitive_rank']
-            personaname = array['profile']['personaname'] 
-            if mmr is not None:
-                message.reply('lel ' + personaname + ' is only '+ mmr + ' mmr scrub, git gud')
+            if array['tracked_until'] is not None:
+                mmr = array['solo_competitive_rank']
+                personaname = array['profile']['personaname'] 
+                if mmr is not None:
+                    message.reply('lel ' + personaname + ' is only '+ mmr + ' mmr scrub, git gud')
+                else:
+                    message.reply('unranked pleb or hidden mmr')
             else:
-                message.reply('unranked pleb or hidden mmr')
+                message.reply('rofl ' + id + ' existe meme pas zzz')
         else:
             message.reply('nice fake player id: ' + id)
 
