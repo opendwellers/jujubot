@@ -13,9 +13,9 @@ def hi(message):
 def hi(message):
     message.reply('de rien la')
 
-@respond_to('^est-ce que .* ?$')
+@respond_to('^est-ce qu.* ?$')
 def hi(message):
-    choice = randint(0,3)
+    choice = randint(0,5)
     if choice is 0:
         message.reply('maybe') 
     elif choice is 1:
@@ -24,6 +24,10 @@ def hi(message):
         message.reply('yess')
     elif choice is 3:
         message.reply('no')
+    elif choice is 4:
+        message.reply('rolf oui')
+    elif choice is 5:
+        message.reply('omggggg no')
 hi.__doc__ = "legit answers try it out!"
 
 @respond_to('I love you', re.IGNORECASE)
