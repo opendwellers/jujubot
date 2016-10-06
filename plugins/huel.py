@@ -59,10 +59,6 @@ def reply_xd(message):
 def reply_velo(message):
     message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver :huel:') 
 
-
-@respond_to('^tayeule$')
-def sleep_reply(message):
-    message.reply('Ok brb 5 mins')
-    time.sleep(int(300))
-    message.reply('hey guys :)')
-sleep_reply.__doc__ = "je vais shut up pour 5 mins"
+@listen_to('^mirin.*?', re.IGNORECASE)
+def reply_mirin(message):
+    message.reply('fucking mirin')

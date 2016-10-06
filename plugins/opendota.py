@@ -5,8 +5,8 @@ from mattermost_bot.bot import listen_to
 from mattermost_bot.bot import respond_to
 
 @respond_to('^mmr$', re.IGNORECASE)
-@respond_to('^mmr (.*)', re.IGNORECASE)
-def hi(message, id=None):
+@respond_to('^mmr ([0-9]+)$', re.IGNORECASE)
+def mmr(message, id=None):
     if id is None:
         url = 'https://api.opendota.com/api/players/{player_id}'.format(player_id=12088460)
         r = requests.get(url)
@@ -29,3 +29,5 @@ def hi(message, id=None):
         else:
             message.reply('nice fake player id: ' + id)
 
+
+mmr.__doc__ = "returns mmr for a given unique id (or mine if none specified) i.e https://www.opendota.com/players/*53515020*"

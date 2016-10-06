@@ -45,8 +45,6 @@ def get_weather(location=None):
         location='Montreal'
     request_url = url(location=location, key=config_api_key)
     r = requests.get(request_url)
-    print(request_url)
-    print(r.json())
     text = build_response_text(r.json(), location)
     return text
 
