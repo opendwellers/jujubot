@@ -12,5 +12,5 @@ Plugins are located in the plugins folder (duh!).
 ## TODO
 
 * Docker image
-* Dota mmr command
-* Reproduce huel cheeky behavior
+* ~~Dota mmr command~~
+* Reproduce huel cheeky behavior (we're getting there)
