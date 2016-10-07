@@ -1,5 +1,6 @@
 import re
 import time
+import random
 
 from random import randint
 from mattermost_bot.bot import listen_to
@@ -11,23 +12,13 @@ def hi(message):
 
 @respond_to('thanks|merci|ty|thx', re.IGNORECASE)
 def hi(message):
-    message.reply('de rien la')
+    replies = ['de rien la', 'np', 'np ;)'] 
+    message.reply(random.choice(replies))
 
 @respond_to('^est-ce qu.* ?$')
 def hi(message):
-    choice = randint(0,5)
-    if choice is 0:
-        message.reply('maybe') 
-    elif choice is 1:
-        message.reply('??')
-    elif choice is 2:
-        message.reply('yess')
-    elif choice is 3:
-        message.reply('no')
-    elif choice is 4:
-        message.reply('rolf oui')
-    elif choice is 5:
-        message.reply('omggggg no')
+    answers = ['maybe', '??', 'yess', 'no', 'rolf oui', 'omgggg no']
+    message.reply(random.choice(answers))
 hi.__doc__ = "legit answers try it out!"
 
 @respond_to('I love you', re.IGNORECASE)
@@ -62,3 +53,12 @@ def reply_velo(message):
 @listen_to('^mirin.*?', re.IGNORECASE)
 def reply_mirin(message):
     message.reply('fucking mirin')
+
+@listen_to(';\)', re.IGNORECASE)
+def reply_wink(message):
+    message.send(';)')
+
+@listen_to('^\^$')
+def upboat(message):
+    message.send('^')
+
