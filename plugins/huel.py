@@ -8,7 +8,8 @@ from mattermost_bot.bot import respond_to
 
 @respond_to('salut', re.IGNORECASE)
 def hi(message):
-    message.reply('aaaaaayyyee')
+    hi_messages = ['aaaaaaayyeee', 'sup', 'yo']
+    message.reply(random.choice(hi_messages))
 
 @respond_to('thanks|merci|ty|thx', re.IGNORECASE)
 def hi(message):
@@ -62,3 +63,6 @@ def reply_wink(message):
 def upboat(message):
     message.send('^')
 
+@listen_to('reddit')
+def reddit(message):
+    message.reply('\>reddit')
