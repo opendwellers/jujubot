@@ -15,6 +15,8 @@ def weather(message, location=None):
     text = get_weather(location)
     message.send(text)
 
+weather.__doc__ = "Get city weather"
+
 app = Flask(__name__)
 url = "http://api.openweathermap.org/data/2.5/forecast/daily?q={location}&APPID={key}&cnt=5".format
 

@@ -11,4 +11,4 @@ def rapture_index(message):
         index = (r.json())['raptureIndexValue']
         message.reply('[current rapture index](http://www.raptureready.com/rap2.html): ' + index)
 
-rapture_index.__doc__ = "get latest rapture index"
+rapture_index.__doc__ = "Get latest rapture index"

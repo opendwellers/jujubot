@@ -14,4 +14,4 @@ def roll_number(message, number=100):
     else:
         message.reply(number + ' is not a valid number for roll command')
 
-roll_number.__doc__ = "roll between 1 and {{number}}, between 1 and 100 if nothing specified"
+roll_number.__doc__ = "Roll between 1 and {{number}}, between 1 and 100 if nothing specified"

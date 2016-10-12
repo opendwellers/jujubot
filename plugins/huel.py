@@ -20,12 +20,12 @@ def hi(message):
 def hi(message):
     answers = ['maybe', '??', 'yess', 'no', 'rolf oui', 'omgggg no']
     message.reply(random.choice(answers))
-hi.__doc__ = "legit answers try it out!"
+hi.__doc__ = "Legit answers try it out!"
 
 @respond_to('I love you', re.IGNORECASE)
 def hi(message):
     message.reply('<3')
-hi.__doc__="ma vous montrer comment je vous aime"
+hi.__doc__="Ma vous montrer comment je vous aime"
 
 @listen_to('.* *anime.*', re.IGNORECASE)
 def disguted(message):

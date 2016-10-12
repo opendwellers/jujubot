@@ -30,4 +30,4 @@ def mmr(message, id=None):
             message.reply('nice fake player id: ' + id)
 
 
-mmr.__doc__ = "returns mmr for a given unique id (or mine if none specified) i.e https://www.opendota.com/players/*53515020*"
+mmr.__doc__ = "Returns mmr for a given unique id (or mine if none specified) i.e https://www.opendota.com/players/*53515020*"
