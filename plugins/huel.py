@@ -6,12 +6,17 @@ from random import randint
 from mattermost_bot.bot import listen_to
 from mattermost_bot.bot import respond_to
 
-@respond_to('salut', re.IGNORECASE)
+@respond_to('salut|allo', re.IGNORECASE)
 def hi(message):
     hi_messages = ['aaaaaaayyeee', 'sup', 'yo']
     message.reply(random.choice(hi_messages))
 
-@respond_to('thanks|merci|ty|thx', re.IGNORECASE)
+@respond_to('stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up', re.IGNORECASE)
+def tayeule_reply(message):
+    tayeule_messages = ['omgggggg', 'NO U']
+    message.reply(random.choice(tayeule_messages))
+
+@respond_to('thanks|merci|thx', re.IGNORECASE)
 def hi(message):
     replies = ['de rien la', 'np', 'np ;)'] 
     message.reply(random.choice(replies))
@@ -39,17 +44,18 @@ def quel_age(message):
 def reply_xd(message, xd):
     message.send('haha '+ xd)
 
-@listen_to('peace|bye|:wave:|alp|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
+@listen_to(':disappear:|peace|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
 def reply_xd(message):
     message.send('hey bye la')
 
 @listen_to('bon matin|morning|mornin', re.IGNORECASE)
 def reply_xd(message):
-    message.send('zzzz kill me now')
+    morning_messages = ['zzzz kill me now', 'omgggggg'] 
+    message.send(random.choice(morning_messages))
 
 @listen_to('velo.*hiver', re.IGNORECASE)
 def reply_velo(message):
-    message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver :huel:') 
+    message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:') 
 
 @listen_to('^mirin.*?', re.IGNORECASE)
 def reply_mirin(message):
@@ -63,6 +69,14 @@ def reply_wink(message):
 def upboat(message):
     message.send('^')
 
+@listen_to('^this$')
+def upboat(message):
+    message.send('this')
+
 @listen_to('reddit')
 def reddit(message):
     message.reply('\>reddit')
+
+@listen_to('tumblr')
+def reddit(message):
+    message.reply('\>tumblr')

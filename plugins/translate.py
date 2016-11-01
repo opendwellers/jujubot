@@ -1,11 +1,16 @@
 from microsofttranslator import Translator
+from microsofttranslator import TranslateApiException
 from mattermost_bot.bot import respond_to
 import configparser 
 import re
 
 @respond_to('translate ([a-z]{2}) ([a-z]{2}) (.*)', re.IGNORECASE)
 def translate(message, lang1='fr', lang2='ht', string='criminel'):
-    translation = translator.translate(text=string, from_lang=lang1, to_lang=lang2)
+    try:
+        translation = translator.translate(text=string, from_lang=lang1, to_lang=lang2)
+    except TranslateApiException:
+        message.reply('microsoft api sucks azure zzz')
+        return
     message.reply(translation)
 
 

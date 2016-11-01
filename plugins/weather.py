@@ -10,19 +10,26 @@ import time
 import json
 
 @respond_to('weather$', re.IGNORECASE)
-@respond_to('weather (.*)', re.IGNORECASE)
+@respond_to('weather ([A-z_-]+$)', re.IGNORECASE)
 def weather(message, location=None):
     text = get_weather(location)
+    message.send(text)
+
+@respond_to('weather ([0-9]*$)', re.IGNORECASE)
+def weather_id(message, city_id=None):
+    text = get_weather_id(city_id)
     message.send(text)
 
 weather.__doc__ = "Get city weather"
 
 app = Flask(__name__)
 url = "http://api.openweathermap.org/data/2.5/forecast/daily?q={location}&APPID={key}&cnt=5".format
+url_id = "http://api.openweathermap.org/data/2.5/forecast/daily?id={city_id}&APPID={key}&cnt=5".format
 
 def init():
     """Initializes variables"""
     global url
+    global url_id
     global config_api_key
     Config = configparser.ConfigParser()
     Config.read("configuration/config")
@@ -32,6 +39,13 @@ def init():
 
 init()
 
+def get_weather_id(city_id=None):
+    request_url = url_id(city_id=city_id, key=config_api_key)
+    r = requests.get(request_url)
+    if r.json()['cod'] == "502":
+        return "fuck you"
+    text = build_response_text(r.json(), r.json()['city']['name'])
+    return text
 
 def get_weather(location=None):
     # weird bug where I don't know why len(location) is 1 when no location is passed...
