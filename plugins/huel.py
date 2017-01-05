@@ -16,7 +16,7 @@ def tayeule_reply(message):
     tayeule_messages = ['omgggggg', 'NO U']
     message.reply(random.choice(tayeule_messages))
 
-@respond_to('thanks|merci|thx', re.IGNORECASE)
+@respond_to('thanks|merci|ty|thx', re.IGNORECASE)
 def hi(message):
     replies = ['de rien la', 'np', 'np ;)'] 
     message.reply(random.choice(replies))
@@ -44,7 +44,7 @@ def quel_age(message):
 def reply_xd(message, xd):
     message.send('haha '+ xd)
 
-@listen_to(':disappear:|peace|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
+@listen_to(':disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
 def reply_xd(message):
     message.send('hey bye la')
 
@@ -57,6 +57,10 @@ def reply_xd(message):
 def reply_velo(message):
     message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:') 
 
+# @listen_to('salut', re.IGNORECASE)
+# def reply_velo(message):
+    # message.send('FUCK YOU') 
+
 @listen_to('^mirin.*?', re.IGNORECASE)
 def reply_mirin(message):
     message.reply('fucking mirin')
@@ -64,6 +68,10 @@ def reply_mirin(message):
 @listen_to(';\)', re.IGNORECASE)
 def reply_wink(message):
     message.send(';)')
+
+@listen_to(':P[^a-zA-Z0-9]+', re.IGNORECASE)
+def reply_wink(message):
+    message.send(':P')
 
 @listen_to('^\^$')
 def upboat(message):
@@ -73,10 +81,14 @@ def upboat(message):
 def upboat(message):
     message.send('this')
 
-@listen_to('reddit')
+@listen_to('reddit', re.IGNORECASE)
 def reddit(message):
     message.reply('\>reddit')
 
 @listen_to('tumblr')
 def reddit(message):
     message.reply('\>tumblr')
+
+@listen_to('tgif$', re.IGNORECASE)
+def reddit(message):
+    message.reply('tgiff*')
