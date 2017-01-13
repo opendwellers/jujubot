@@ -32,7 +32,7 @@ def hi(message):
     message.reply('<3')
 hi.__doc__="Ma vous montrer comment je vous aime"
 
-@listen_to('.* *anime.*', re.IGNORECASE)
+@listen_to('anime|animuh|weeb|weaboo', re.IGNORECASE)
 def disguted(message):
     message.send('### Disgusting weebs rolf :huel:')
 
@@ -69,7 +69,7 @@ def reply_mirin(message):
 def reply_wink(message):
     message.send(';)')
 
-@listen_to(':P[^a-zA-Z0-9]+', re.IGNORECASE)
+@listen_to(':p[^\w]+|:p |:p\Z', re.IGNORECASE)
 def reply_wink(message):
     message.send(':P')
 
@@ -89,6 +89,6 @@ def reddit(message):
 def reddit(message):
     message.reply('\>tumblr')
 
-@listen_to('tgif$', re.IGNORECASE)
+@listen_to('tgif(?!f)', re.IGNORECASE)
 def reddit(message):
     message.reply('tgiff*')
