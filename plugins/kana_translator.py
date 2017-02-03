@@ -22,21 +22,25 @@ def wotdJapanese(message):
     if r.status_code == 200:
         soup = BeautifulSoup(r.text, 'html.parser')
         romajiJap = soup.find('p', {'class':'wdjpr'}).getText()
-        kanaJap = soup.find('p', {'class':'wdjpk'}).getText()
+        kanaJap = soup.findAll('p', {'class':'wdjpk'})[0].getText()
         romajiEng = soup.find('p', {'class':'wdeng'}).getText()
         expJap = soup.find('td', {'class':'exjpr'}).getText()
         expKana = soup.find('td', {'class':'exjpk'}).getText()
         expEng = soup.find('td', {'class':'exeng'}).getText()
+        kanjiJap = soup.findAll('p', {'class':'wdjpk'})[1].getText()
 
 
 
         currentDate = time.strftime("%d/%m/%Y")
-        payload = """ ### Japanese word of the day for %s
-        *%s* (%s) - %s
-        %s
-        %s
-        %s
-        """ % (currentDate, romajiJap, kanaJap, romajiEng, expJap, expKana, expEng)
+        payload = """
+#### Japanese word of the day for %s
+
+# **%s**
+*%s* (%s) - %s
+%s
+%s
+%s
+        """ % (currentDate, kanjiJap, romajiJap, kanaJap, romajiEng, expJap, expKana, expEng)
 
         message.send(payload)
 

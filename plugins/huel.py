@@ -13,10 +13,10 @@ def hi(message):
 
 @respond_to('stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up', re.IGNORECASE)
 def tayeule_reply(message):
-    tayeule_messages = ['omgggggg', 'NO U']
+    tayeule_messages = ['omgggggg', 'NO U', 'kys']
     message.reply(random.choice(tayeule_messages))
 
-@respond_to('thanks|merci|ty|thx', re.IGNORECASE)
+@respond_to('^thanks|merci|ty|thx', re.IGNORECASE)
 def hi(message):
     replies = ['de rien la', 'np', 'np ;)'] 
     message.reply(random.choice(replies))
@@ -40,16 +40,16 @@ def disguted(message):
 def quel_age(message):
     message.send('rolf vous avez quel age?')
 
-@listen_to('.*(xd+).*', re.IGNORECASE)
+@listen_to('(?<!bagel)(xd+)', re.IGNORECASE)
 def reply_xd(message, xd):
     message.send('haha '+ xd)
 
 @listen_to(':disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
-def reply_xd(message):
+def reply_bye(message):
     message.send('hey bye la')
 
 @listen_to('bon matin|morning|mornin', re.IGNORECASE)
-def reply_xd(message):
+def reply_morning(message):
     morning_messages = ['zzzz kill me now', 'omgggggg'] 
     message.send(random.choice(morning_messages))
 
@@ -71,6 +71,7 @@ def reply_wink(message):
 
 @listen_to(':p[^\w]+|:p |:p\Z', re.IGNORECASE)
 def reply_wink(message):
+    # message.react('+:stuck_out_tongue: ')
     message.send(':P')
 
 @listen_to('^\^$')

@@ -3,7 +3,7 @@ A bot to replace a long-time lost friend on a mattermost server
 
 ## Requirements
 
-`pip install mattermost_bot`
+`pip install mattermost_bot urbandictionary`
 
 ## Plugins
 
