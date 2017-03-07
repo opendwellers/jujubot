@@ -17,11 +17,17 @@ def mmr(message, id=None):
             url = 'https://api.opendota.com/api/players/{player_id}'.format(player_id=id)
             r = requests.get(url)
             array = r.json()
-            if array['tracked_until'] is not None:
-                mmr = array['solo_competitive_rank']
+            print(id)
+            if array['profile'] is not None or id is 53515020:
+                if id is not 53515020:
+                    mmr = array['solo_competitive_rank']
+                else:
+                    mmr = 9000
                 personaname = array['profile']['personaname'] 
-                if mmr is not None:
+                if mmr is not None and mmr < 4500:
                     message.reply('lel ' + personaname + ' is only '+ mmr + ' mmr scrub, git gud')
+                elif mmr is not None and mmr >= 4500:
+                    message.reply('lel ' + personaname + ' is '+ mmr + ' mmr what an amazing player')
                 else:
                     message.reply('unranked pleb or hidden mmr')
             else:

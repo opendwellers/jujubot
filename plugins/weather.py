@@ -42,9 +42,14 @@ init()
 def get_weather_id(city_id=None):
     request_url = url_id(city_id=city_id, key=config_api_key)
     r = requests.get(request_url)
-    if r.json()['cod'] == "502":
+    parsed = r.json()
+
+    if parsed['cod'] == "502" or parsed['cod'] == '404' or parsed['cod'] == '500':
         return "fuck you"
-    text = build_response_text(r.json(), r.json()['city']['name'])
+    if parsed['list'] is not None:
+        text = build_response_text(r.json(), r.json()['city']['name'])
+    else:
+        text = "oktamer"
     return text
 
 def get_weather(location=None):
@@ -61,8 +66,12 @@ def get_weather(location=None):
         location='Montreal'
     request_url = url(location=location, key=config_api_key)
     r = requests.get(request_url)
-    text = build_response_text(r.json(), location)
-    return text
+    parsed = r.json()
+    if parsed['cod'] == '404' or parsed['cod'] == '502' or parsed['cod']  == '500':
+        return 'oktamer'
+    else:
+        text = build_response_text(r.json(), location)
+        return text
 
 def get_embedded_icon_url(icon_code, desc):
     """Returns a formatted markdown line to show the weather icon"""
@@ -82,6 +91,10 @@ def get_day_weather_line(day):
     return "| {day_info_date_param} | {desc_param}  {day_icon_param} | {day_temp_high_param} °C | {day_temp_low_param} °C  |\n".format(day_info_date_param=day_info_date, desc_param=day_desc, day_icon_param=day_icon, day_temp_high_param=day_temp_high, day_temp_low_param=day_temp_low)
 
 def build_response_text(data, location):
+
+
+
+
     """Post formatted data to mattermost instance"""
     days = []
     payload_text = """

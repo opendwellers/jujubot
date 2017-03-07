@@ -16,7 +16,7 @@ def tayeule_reply(message):
     tayeule_messages = ['omgggggg', 'NO U', 'kys']
     message.reply(random.choice(tayeule_messages))
 
-@respond_to('^thanks|merci|ty|thx', re.IGNORECASE)
+@respond_to('^thanks|^merci|^ty|^thx', re.IGNORECASE)
 def hi(message):
     replies = ['de rien la', 'np', 'np ;)'] 
     message.reply(random.choice(replies))
