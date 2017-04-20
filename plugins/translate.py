@@ -1,5 +1,6 @@
 from microsofttranslator import Translator
 from microsofttranslator import TranslateApiException
+from microsofttranslator import ArgumentOutOfRangeException
 from mattermost_bot.bot import respond_to
 import configparser 
 import re
@@ -8,7 +9,7 @@ import re
 def translate(message, lang1='fr', lang2='ht', string='criminel'):
     try:
         translation = translator.translate(text=string, from_lang=lang1, to_lang=lang2)
-    except TranslateApiException:
+    except (TranslateApiException, ArgumentOutOfRangeException):
         message.reply('microsoft api sucks azure zzz')
         return
     message.reply(translation)

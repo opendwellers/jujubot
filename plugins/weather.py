@@ -9,15 +9,10 @@ import requests
 import time
 import json
 
-@respond_to('weather$', re.IGNORECASE)
-@respond_to('weather ([A-z_-]+$)', re.IGNORECASE)
+@respond_to('^weather ([A-z_-]+$)', re.IGNORECASE)
+@respond_to('^weather$', re.IGNORECASE)
 def weather(message, location=None):
     text = get_weather(location)
-    message.send(text)
-
-@respond_to('weather ([0-9]*$)', re.IGNORECASE)
-def weather_id(message, city_id=None):
-    text = get_weather_id(city_id)
     message.send(text)
 
 weather.__doc__ = "Get city weather"
@@ -38,19 +33,6 @@ def init():
     config_api_key = Config.get('OpenWeather', 'api_key')
 
 init()
-
-def get_weather_id(city_id=None):
-    request_url = url_id(city_id=city_id, key=config_api_key)
-    r = requests.get(request_url)
-    parsed = r.json()
-
-    if parsed['cod'] == "502" or parsed['cod'] == '404' or parsed['cod'] == '500':
-        return "fuck you"
-    if parsed['list'] is not None:
-        text = build_response_text(r.json(), r.json()['city']['name'])
-    else:
-        text = "oktamer"
-    return text
 
 def get_weather(location=None):
     # weird bug where I don't know why len(location) is 1 when no location is passed...
