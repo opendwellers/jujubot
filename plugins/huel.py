@@ -69,9 +69,8 @@ def reply_mirin(message):
 def reply_wink(message):
     message.send(';)')
 
-@listen_to(':p[^\w]+|(?::\-P|:p) *\Z', re.IGNORECASE)
+@listen_to(':p[^\w]+|(?::\-P|:p|:stuck_out_tongue:) *\Z', re.IGNORECASE)
 def reply_wink(message):
-    # message.react('+:stuck_out_tongue: ')
     message.send(':P')
 
 @listen_to('^\^$')

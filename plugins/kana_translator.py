@@ -1,7 +1,7 @@
-import regex as re
 import romkan
 import requests
 import time
+import re
 
 from bs4 import BeautifulSoup
 from mattermost_bot.bot import respond_to
