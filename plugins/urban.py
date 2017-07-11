@@ -7,6 +7,15 @@ from mattermost_bot.bot import respond_to
 def urban_def(message, query):
     defs = ud.define(query)
     if len(defs) > 0:
-        message.send(defs[0].definition)
+        definition = defs[0]
+        if definition.example:
+            payload = """{0}\r
+*\r
+{1}\r
+*""".format(definition.definition, definition.example)
+        else:
+            payload = "{0}".format(definition.definition)
+
+        message.send(payload)
     else:
         message.send('No definition found :\'(')
