@@ -13,7 +13,7 @@ def hi(message):
 
 @respond_to('stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up', re.IGNORECASE)
 def tayeule_reply(message):
-    tayeule_messages = ['omgggggg', 'NO U', 'kys']
+    tayeule_messages = ['omgggggg', 'NO U', 'kys', 'tayeul']
     message.reply(random.choice(tayeule_messages))
 
 @respond_to('^thanks|^merci|^ty|^thx', re.IGNORECASE)
