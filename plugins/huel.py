@@ -13,7 +13,7 @@ def hi(message):
 
 @respond_to('stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up', re.IGNORECASE)
 def tayeule_reply(message):
-    tayeule_messages = ['omgggggg', 'NO U', 'kys', 'tayeul']
+    tayeule_messages = ['no u?', 'NO U', ':chuckles:', 'rolf']
     message.reply(random.choice(tayeule_messages))
 
 @respond_to('^thanks|^merci|^ty|^thx', re.IGNORECASE)
@@ -25,12 +25,10 @@ def hi(message):
 def hi(message):
     answers = ['maybe', '??', 'yess', 'no', 'rolf oui', 'omgggg no']
     message.reply(random.choice(answers))
-hi.__doc__ = "Legit answers try it out!"
 
 @respond_to('I love you', re.IGNORECASE)
 def hi(message):
     message.reply('<3')
-hi.__doc__="Ma vous montrer comment je vous aime"
 
 @listen_to('anime|animuh|weeb|weaboo', re.IGNORECASE)
 def disguted(message):

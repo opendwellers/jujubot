@@ -92,3 +92,6 @@ ENV/
 mattermost_bot_settings.py
 
 matterbot
+
+.idea
+configuration/config
