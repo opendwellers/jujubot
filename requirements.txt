@@ -9,7 +9,6 @@ idna==2.6
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
-microsofttranslator==0.8
 requests==2.18.4
 romkan==0.2.1
 six==1.11.0
