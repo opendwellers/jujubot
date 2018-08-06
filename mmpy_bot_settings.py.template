@@ -4,6 +4,13 @@ BOT_LOGIN = '<bot-email-address>'
 BOT_PASSWORD = '<bot-password>'
 BOT_TEAM = '<your-team>'  # possible in lowercase
 
+PLUGINS_ONLY_DOC_STRING = False
+IGNORE_NOTIFIES = ['@channel', '@all', '@here']
+DEFAULT_REPLY_MODULE = None
+DEFAULT_REPLY = 'Kes tu. Veux????'
+WORKERS_NUM = 10
+
 PLUGINS = [
-   'plugins' 
+    'mmpy_bot.plugins',
+    'plugins' 
 ]
