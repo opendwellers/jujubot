@@ -2,8 +2,8 @@ import re
 import requests
 
 from random import randint
-from mattermost_bot.bot import listen_to
-from mattermost_bot.bot import respond_to
+from mmpy_bot.bot import listen_to
+from mmpy_bot.bot import respond_to
 
 @respond_to('^roll ?(\d+)?$', re.IGNORECASE)
 def roll_number(message, number=100):

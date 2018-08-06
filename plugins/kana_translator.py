@@ -4,7 +4,7 @@ import time
 import re
 
 from bs4 import BeautifulSoup
-from mattermost_bot.bot import respond_to
+from mmpy_bot.bot import respond_to
 
 
 @respond_to('hiragana ([\u30A0-\u30FF\u3040-\u309Fー\u4E00-\u9FFF]+)', re.U)

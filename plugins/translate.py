@@ -14,7 +14,7 @@ def init():
 init()
 
 
-from mattermost_bot.bot import respond_to
+from mmpy_bot.bot import respond_to
 
 yandex_url = 'https://translate.yandex.net/api/v1.5/tr.json/'
 yandex_translate_endpoint = 'translate'

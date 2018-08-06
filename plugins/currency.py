@@ -1,8 +1,8 @@
 import re
 import requests
 
-from mattermost_bot.bot import listen_to
-from mattermost_bot.bot import respond_to
+from mmpy_bot.bot import listen_to
+from mmpy_bot.bot import respond_to
 
 @respond_to('currency (\w{3}) (\w{3})$', re.IGNORECASE)
 def rates(message, base, otherCurrency):
