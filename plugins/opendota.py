@@ -1,8 +1,8 @@
 import re
 import requests
 
-from mattermost_bot.bot import listen_to
-from mattermost_bot.bot import respond_to
+from mmpy_bot.bot import listen_to
+from mmpy_bot.bot import respond_to
 
 @respond_to('^mmr$', re.IGNORECASE)
 @respond_to('^mmr ([0-9]+)$', re.IGNORECASE)

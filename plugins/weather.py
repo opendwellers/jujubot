@@ -2,9 +2,9 @@ import re
 from flask import Flask
 from flask import Response
 from datetime import datetime
-from mattermost_bot.bot import listen_to
-from mattermost_bot.bot import respond_to
-import configparser 
+from mmpy_bot.bot import listen_to
+from mmpy_bot.bot import respond_to
+import configparser
 import requests
 import time
 import json

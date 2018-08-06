@@ -1,0 +1,9 @@
+bot:
+  build: ./
+  container_name: mattermost-jujubot
+  restart: unless-stopped
+  volumes:
+    - ./mmpy_bot_settings.py:/jujubot/mmpy_bot_settings.py
+    - ./configuration/config:/jujubot/configuration/config
+  environment:
+    - MATTERMOST_BOT_SETTINGS_MODULE=mmpy_bot_settings

@@ -1,8 +1,8 @@
 import re
 import requests
 
-from mattermost_bot.bot import listen_to
-from mattermost_bot.bot import respond_to
+from mmpy_bot.bot import listen_to
+from mmpy_bot.bot import respond_to
 
 @respond_to('^rapture index$', re.IGNORECASE)
 def rapture_index(message):

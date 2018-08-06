@@ -89,7 +89,7 @@ ENV/
 .ropeproject
 
 #huel config file
-mattermost_bot_settings.py
+mmpy_bot_settings.py
 
 matterbot
 
