@@ -44,7 +44,7 @@ def reply_xd(message, xd):
 
 @listen_to(':disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
 def reply_bye(message):
-    message.send('hey bye la')
+    message.send('hey salut la, a prochaine, on se revoit, stait bin lfun')
 
 @listen_to('bon matin|morning|mornin', re.IGNORECASE)
 def reply_morning(message):
@@ -54,10 +54,6 @@ def reply_morning(message):
 @listen_to('velo.*hiver', re.IGNORECASE)
 def reply_velo(message):
     message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:') 
-
-# @listen_to('salut', re.IGNORECASE)
-# def reply_velo(message):
-    # message.send('FUCK YOU') 
 
 @listen_to('^mirin.*?', re.IGNORECASE)
 def reply_mirin(message):
