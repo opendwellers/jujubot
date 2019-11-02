@@ -7,7 +7,7 @@ configparser==3.5.0
 Flask==1.0
 idna==2.6
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.10.1
 MarkupSafe==1.0
 requests==2.20.0
 romkan==0.2.1
