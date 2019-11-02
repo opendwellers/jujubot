@@ -42,19 +42,22 @@ def quel_age(message):
 def reply_xd(message, xd):
     message.send('haha '+ xd)
 
+@respond_to(':disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
 @listen_to(':disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot', re.IGNORECASE)
 def reply_bye(message):
     message.send('hey salut la, a prochaine, on se revoit, stait bin lfun')
 
+@respond_to('bon matin|morning|mornin', re.IGNORECASE)
 @listen_to('bon matin|morning|mornin', re.IGNORECASE)
 def reply_morning(message):
-    morning_messages = ['zzzz kill me now', 'omgggggg'] 
+    morning_messages = ['zzzz kill me now', 'omgggggg']
     message.send(random.choice(morning_messages))
 
 @listen_to('velo.*hiver', re.IGNORECASE)
 def reply_velo(message):
-    message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:') 
+    message.send('wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:')
 
+@respond_to('^mirin.*?', re.IGNORECASE)
 @listen_to('^mirin.*?', re.IGNORECASE)
 def reply_mirin(message):
     message.reply('fucking mirin')

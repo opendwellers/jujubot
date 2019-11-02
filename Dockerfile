@@ -1,7 +1,8 @@
-FROM python:3.6.5
+FROM python:3.7-alpine
 
 COPY ./ /jujubot/
 WORKDIR /jujubot
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache git && \
+    pip install --no-cache-dir -r requirements.txt
 
 CMD [ "python", "./run.py" ]
