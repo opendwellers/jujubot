@@ -8,7 +8,6 @@ from mmpy_bot.bot import respond_to
 
 @respond_to('^roll ?(\d+)?$', re.IGNORECASE)
 def roll_number(message, number=100):
-    number = 100 if number is None else number
     
     if number is 420 :
         
@@ -24,11 +23,13 @@ def roll_number(message, number=100):
                 message.reply(random + ' :chuckle:')
         else:
             message.reply('Spa leur smh')
+    else :
+        number = 100 if number is None else number
         
-    if int(number) > 1:
-        random = randint(1,int(number))
-        message.reply(random)
-    else:
-        message.reply(number + ' is not a valid number for roll command')
+        if int(number) > 1:
+            random = randint(1,int(number))
+            message.reply(random)
+        else:
+            message.reply(number + ' is not a valid number for roll command')
 
 roll_number.__doc__ = "Roll between 1 and {{number}}, between 1 and 100 if nothing specified"
