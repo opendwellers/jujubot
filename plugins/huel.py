@@ -62,11 +62,11 @@ def reply_velo(message):
 def reply_mirin(message):
     message.reply('fucking mirin')
 
-@listen_to('(?<!\w)(;-?\)|:wink:)(?!\w)', re.IGNORECASE)
+@listen_to('(?<!\w)(?:;-?\)|:wink:)(?!\w)', re.IGNORECASE)
 def reply_wink(message):
     message.send(';)')
 
-@listen_to('(?<!\w)(:-?P|:stuck_out_tongue:)(?!\w)', re.IGNORECASE)
+@listen_to('(?<!\w)(?::-?P|:stuck_out_tongue:)(?!\w)', re.IGNORECASE)
 def reply_wink(message):
     message.send(':P')
 
