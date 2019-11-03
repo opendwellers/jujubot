@@ -20,9 +20,9 @@ def roll_number(message, number):
             random = randint(1, number)
 
             if random == 420:
-                message.reply('### BIG WINNER WOW ' + random)
+                message.reply("{} BIG WINNER WOW :musk: :weed:".format(random))
             else:
-                message.reply(random + ' :chuckle:')
+                message.reply("{} :chuckles:".format(random))
         else:
             message.reply('Spa leur smh')
     elif number > 1:
