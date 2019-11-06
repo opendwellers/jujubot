@@ -70,7 +70,7 @@ def reply_wink(message):
 def reply_tongue(message):
     message.send(':P')
 
-@listen_to('(?<!\w)(:fuck:)(?!\w)', re.IGNORECASE)
+@listen_to('(?<!\w)(?::fuck:)(?!\w)', re.IGNORECASE)
 def react_fuck(message):
     message.react('fuck')
 
