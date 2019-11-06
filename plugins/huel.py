@@ -17,17 +17,17 @@ def tayeule_reply(message):
     message.reply(random.choice(tayeule_messages))
 
 @respond_to('^thanks|^merci|^ty|^thx', re.IGNORECASE)
-def hi(message):
+def thanks(message):
     replies = ['de rien la', 'np', 'np ;)'] 
     message.reply(random.choice(replies))
 
 @respond_to('^est-ce qu.* ?$')
-def hi(message):
+def question(message):
     answers = ['maybe', '??', 'yess', 'no', 'rolf oui', 'omgggg no']
     message.reply(random.choice(answers))
 
 @respond_to('I love you', re.IGNORECASE)
-def hi(message):
+def love(message):
     message.reply('<3')
 
 @listen_to('anime|animuh|weeb|weaboo', re.IGNORECASE)
@@ -67,15 +67,19 @@ def reply_wink(message):
     message.send(';)')
 
 @listen_to('(?<!\w)(?::-?P|:stuck_out_tongue:)(?!\w)', re.IGNORECASE)
-def reply_wink(message):
+def reply_tongue(message):
     message.send(':P')
+
+@listen_to('(?<!\w)(:fuck:)(?!\w)', re.IGNORECASE)
+def reply_wink(message):
+    message.react('fuck')
 
 @listen_to('^\^$')
 def upboat(message):
     message.send('^')
 
 @listen_to('^this$')
-def upboat(message):
+def upvote(message):
     message.send('this')
 
 @listen_to('reddit', re.IGNORECASE)
@@ -83,9 +87,9 @@ def reddit(message):
     message.reply('\>reddit')
 
 @listen_to('tumblr')
-def reddit(message):
+def tumblr(message):
     message.reply('\>tumblr')
 
 @listen_to('tgif(?!f)', re.IGNORECASE)
-def reddit(message):
+def friday(message):
     message.reply('tgiff*')
