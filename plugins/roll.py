@@ -31,6 +31,6 @@ def roll_number(message, number):
     elif number == 1:
         message.reply(":99:")
     else:
-        message.reply(number + ' is not a valid number for roll command')
+        message.reply('{number} is not a valid number for roll command'.format(number=number))
 
 roll_number.__doc__ = "Roll between 1 and {{number}}, between 1 and 100 if nothing specified"
