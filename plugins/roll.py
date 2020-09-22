@@ -11,6 +11,9 @@ def roll_number(message, number):
 
     number = 100 if number is None else int(number)
 
+    if number == 1:
+        message.reply(":99:")
+    
     if number == 420 :
 
         now = datetime.datetime.now()
