@@ -25,7 +25,7 @@ def roll_number(message, number):
                 message.reply("{} :chuckles:".format(random))
         else:
             message.reply('Spa leur smh')
-    elif number > 2:
+    elif number > 1:
         random = randint(1, number)
         message.reply(random)
     elif number == 1:
