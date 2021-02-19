@@ -8,8 +8,11 @@ from mmpy_bot.bot import respond_to
 
 @respond_to('^roll ?(\d+)?$', re.IGNORECASE)
 def roll_number(message, number):
-
-    number = 100 if number is None else int(number)
+   
+    if number == ":weed:":
+        number = 420
+    
+    number = 420 if number is None else int(number)
 
     if number == 420 :
 
