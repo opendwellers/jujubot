@@ -23,11 +23,11 @@ def roll_number(message, number):
             random = randint(1, number)
 
             if random == 420:
-                message.reply("{} BIG WINNER WOW :musk: :weed:".format(random))
+                message.reply("![](/plugins/memes/templates/success-kid.jpg?text={}&text=BIG%20WINNER%20WOW%20:musk:%20:weed:)".format(random))
             else:
-                message.reply("{} :chuckles:".format(random))
+                message.reply("![](/plugins/memes/templates/bad-luck-brian.jpg?text=:chuckles:&text={})".format(random))
         else:
-            message.reply('Spa leur smh')
+            message.reply('![](/plugins/memes/templates/picard-facepalm.jpg?text=Spa+leur+smh)')
     elif number > 1:
         random = randint(1, number)
         message.reply(random)
