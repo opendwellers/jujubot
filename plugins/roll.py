@@ -6,7 +6,7 @@ from random import randint
 from mmpy_bot.bot import listen_to
 from mmpy_bot.bot import respond_to
 
-@respond_to('^roll ?(\d+)?$', re.IGNORECASE)
+@respond_to('^roll ?(\d+|:weed:)?$', re.IGNORECASE)
 def roll_number(message, number):
    
     if number == ":weed:":
