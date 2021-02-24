@@ -24,6 +24,8 @@ def roll_number(message, number):
 
             if random == 420:
                 message.reply("{} BIG WINNER WOW :musk: :weed:".format(random))
+            elif random == 69:
+                message.reply("{} _Nice._ :smugpepe:".format(random))
             else:
                 message.reply("{} :chuckles:".format(random))
         else:
