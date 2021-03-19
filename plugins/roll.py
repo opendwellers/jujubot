@@ -6,7 +6,7 @@ from random import randint
 from mmpy_bot.bot import listen_to
 from mmpy_bot.bot import respond_to
 
-@respond_to('^roll ?(\d+|:weed:|\w)?$', re.IGNORECASE)
+@respond_to('^roll ?(\d+|:weed:|dice)?$', re.IGNORECASE)
 def roll_number(message, number):
    
     if number == ":weed:":
@@ -38,4 +38,4 @@ def roll_number(message, number):
     else:
         message.reply('{} is not a valid number for roll command'.format(number))
 
-roll_number.__doc__ = "Roll between 1 and {{number}}, between 1 and 100 if nothing specified"
+roll_number.__doc__ = "Roll between 1 and {{number}}, between 1 and 420 if nothing specified"
