@@ -6,13 +6,12 @@ from random import randint
 from mmpy_bot.bot import listen_to
 from mmpy_bot.bot import respond_to
 
-@respond_to('^roll ?(\d+|:weed:)?$', re.IGNORECASE)
+@respond_to('^roll ?(\d+|:weed:|\w)?$', re.IGNORECASE)
 def roll_number(message, number):
    
     if number == ":weed:":
         number = 420
-    
-    if number == "dice":
+    elif number == "dice":
         number = 6
     
     number = 420 if number is None else int(number)
