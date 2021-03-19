@@ -12,6 +12,9 @@ def roll_number(message, number):
     if number == ":weed:":
         number = 420
     
+    if number == "dice":
+        number = 6
+    
     number = 420 if number is None else int(number)
 
     if number == 420 :
@@ -34,6 +37,6 @@ def roll_number(message, number):
         random = randint(1, number)
         message.reply(random)
     else:
-        message.reply(number + ' is not a valid number for roll command')
+        message.reply('{} is not a valid number for roll command'.format(number))
 
 roll_number.__doc__ = "Roll between 1 and {{number}}, between 1 and 100 if nothing specified"
