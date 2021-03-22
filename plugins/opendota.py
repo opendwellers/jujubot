@@ -18,8 +18,8 @@ def mmr(message, id=None):
             r = requests.get(url)
             array = r.json()
             print(id)
-            if array['profile'] is not None or id is 53515020:
-                if id is not 53515020:
+            if array['profile'] is not None or id == 53515020:
+                if id != 53515020:
                     mmr = array['solo_competitive_rank']
                 else:
                     mmr = 9000
