@@ -35,6 +35,8 @@ def roll_number(message, number):
     elif number > 1:
         random = randint(1, number)
         message.reply(random)
+    elif number == 1:
+        message.reply(":99:")
     else:
         message.reply('{} is not a valid number for roll command'.format(number))
 
