@@ -12,7 +12,7 @@ MarkupSafe==1.1.1
 requests==2.22.0
 romkan==0.2.1
 six==1.11.0
-urllib3==1.24.2
+urllib3==1.26.5
 websocket-client==0.47.0
 Werkzeug==0.16.0
 cloudscraper==1.2.6
