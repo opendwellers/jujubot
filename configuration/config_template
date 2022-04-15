@@ -1,8 +1,0 @@
-[OpenWeather]
-api_key: 1234567
-
-[Yandex]
-api_key: trnsl.1.1.fasfda
-
-[Bot]
-server_name: memelord.com:5000
