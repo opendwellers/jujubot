@@ -15,12 +15,13 @@ const (
 )
 
 type Config struct {
-	Hostname       string `mapstructure:"hostname"`
-	ServerURL      string `mapstructure:"server_url"`
-	ServerWSURL    string `mapstructure:"server_ws_url"`
-	TeamName       string `mapstructure:"team_name"`
-	ChannelLogName string `mapstructure:"channel_log_name"`
-	AuthToken      string `mapstructure:"auth_token"`
+	Hostname          string `mapstructure:"hostname"`
+	ServerURL         string `mapstructure:"server_url"`
+	ServerWSURL       string `mapstructure:"server_ws_url"`
+	TeamName          string `mapstructure:"team_name"`
+	ChannelLogName    string `mapstructure:"channel_log_name"`
+	AuthToken         string `mapstructure:"auth_token"`
+	OpenWeatherApiKey string `mapstructure:"open_weather_api_key"`
 }
 
 func LoadConfig() (config Config, err error) {

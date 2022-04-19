@@ -10,21 +10,12 @@ import (
 	"time"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/opendwellers/jujubot/pkg/commands"
 	"github.com/opendwellers/jujubot/pkg/config"
 	"go.uber.org/zap"
 )
 
-const (
-	SAMPLE_NAME = "Huel420 Bot"
-
-	// BOT_AUTH_TOKEN = "hsb6jqccdfgo7jsa8mcpdccxsy"
-
-	// HOSTNAME         = "chat.polycancer.org"
-	// SERVER_URL       = "https://" + HOSTNAME
-	// SERVER_WS_URL    = "wss://" + HOSTNAME
-	// TEAM_NAME        = "Dwellers"
-	// CHANNEL_LOG_NAME = "sandbox"
-)
+const globalRegexOptions = "(?i)"
 
 var chargeMap map[string]int = map[string]int{}
 
@@ -35,10 +26,11 @@ var botUser *model.User
 var botTeam *model.Team
 var debuggingChannel *model.Channel
 
+var weatherClient commands.Weather
+
 // Documentation for the Go driver can be found
 // at https://godoc.org/github.com/mattermost/platform/model#Client
 func main() {
-	println(SAMPLE_NAME)
 	zap.S().Info("loading configuration file")
 	config, error := config.LoadConfig()
 	if error != nil {
@@ -67,12 +59,19 @@ func main() {
 
 	// Lets create a bot channel for logging debug messages into
 	CreateBotDebuggingChannelIfNeeded(config.ChannelLogName)
-	SendMsgToDebuggingChannel("_"+SAMPLE_NAME+" has **started** running_", "")
+
+	// Initialise weather client
+	var clientErr = error
+	weatherClient, clientErr = commands.NewWeatherClient(config.OpenWeatherApiKey)
+	if clientErr != nil {
+		zap.S().Error("failed to create weather client")
+		os.Exit(1)
+	}
 
 	// Lets start listening to some channels via the websocket!
 	webSocketClient, err := model.NewWebSocketClient4(config.ServerWSURL, client.AuthToken)
 	if err != nil {
-		println("We failed to connect to the web socket")
+		println("failed to connect to the web socket")
 		PrintError(err)
 	}
 
@@ -147,7 +146,11 @@ func CreateBotDebuggingChannelIfNeeded(channelName string) {
 	}
 }
 
-func SendMsgToDebuggingChannel(msg string, replyToId string) {
+func CreateReply(msg string, replyToId string, replyToUserId string) {
+	CreatePost(getUserMention(replyToUserId)+": "+msg, replyToId)
+}
+
+func CreatePost(msg string, replyToId string) {
 	post := &model.Post{}
 	post.ChannelId = debuggingChannel.Id
 	post.Message = msg
@@ -156,6 +159,14 @@ func SendMsgToDebuggingChannel(msg string, replyToId string) {
 
 	if _, resp := client.CreatePost(post); resp.Error != nil {
 		println("We failed to send a message to the logging channel")
+		PrintError(resp.Error)
+	}
+}
+
+func CreateReaction(emojiName string, postId string) {
+	reaction := &model.Reaction{UserId: botUser.Id, PostId: postId, EmojiName: emojiName}
+	if _, resp := client.SaveReaction(reaction); resp.Error != nil {
+		println("We failed to add a reaction to the post")
 		PrintError(resp.Error)
 	}
 }
@@ -169,7 +180,7 @@ func randomChoice(choices []string) string {
 }
 
 func getUserMention(userId string) string {
-	var user, _ = client.GetUser(userId, "")
+	user, _ := client.GetUser(userId, "")
 	return "@" + user.Username
 }
 
@@ -184,8 +195,6 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 		return
 	}
 
-	println("responding to debugging channel msg")
-
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
 	if post != nil {
 
@@ -194,36 +203,120 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 			return
 		}
 
-		var replyToId string
+		replyToId := ""
 		if post.RootId != "" {
 			replyToId = post.RootId
-		} else {
-			replyToId = ""
 		}
 
 		// if you see any word matching 'hello' then respond
-		if matched, _ := regexp.MatchString(`(?:salut|allo)`, post.Message); matched {
-			var choices = []string{"aaaaaaayyeee", "sup", "yo", "xd"}
-			SendMsgToDebuggingChannel(randomChoice(choices), replyToId)
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\bsalut|allo\b`, post.Message); matched {
+			choices := []string{"aaaaaaayyeee", "sup", "yo"}
+			CreateReply(randomChoice(choices), replyToId, post.UserId)
 			return
 		}
 
-		if matched := regexp.MustCompile(`(xd+)`).FindAllStringSubmatch(post.Message, -1); matched != nil {
-			SendMsgToDebuggingChannel("haha "+matched[0][1], replyToId)
+		if matched := regexp.MustCompile(globalRegexOptions+`(xd+)`).FindAllStringSubmatch(post.Message, -1); matched != nil {
+			CreatePost("haha "+matched[0][1], replyToId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\banime|animuh|weeb|weaboo\b`, post.Message); matched {
+			CreatePost("### Disgusting weebs rolf :huel:", replyToId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\bvidya|bonshommes\b`, post.Message); matched {
+			CreatePost("rolf vous avez quel age?", replyToId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\bvelo.*hiver\b`, post.Message); matched {
+			CreatePost("wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:", replyToId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\b:disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot\b`, post.Message); matched {
+			CreatePost("hey salut la, a prochaine, on se revoit, stait bin lfun", replyToId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\bbon matin|morning|mornin\b`, post.Message); matched {
+			choices := []string{"zzzz kill me now", "omgggggg"}
+			CreatePost(randomChoice(choices), replyToId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\bmirin\b`, post.Message); matched {
+			CreateReply("fucking mirin", replyToId, post.UserId)
+			return
+		}
+
+		if matched, _ := regexp.MatchString(globalRegexOptions+`;-?\)|:wink:`, post.Message); matched {
+			CreateReaction("wink", post.Id)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`:-?P|:stuck_out_tongue:`, post.Message); matched {
+			CreateReaction("stuck_out_tongue", post.Id)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`:fuck:`, post.Message); matched {
+			CreateReaction("fuck", post.Id)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\^`, post.Message); matched {
+			CreatePost("^", replyToId)
+			CreateReaction("point_up_2", post.Id)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\bthis\b`, post.Message); matched {
+			CreatePost("this", replyToId)
+			CreateReaction("point_up_2", post.Id)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\breddit\b`, post.Message); matched {
+			CreateReply("\\>reddit", replyToId, post.UserId)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\btumblr\b`, post.Message); matched {
+			CreateReply("\\>tumblr", replyToId, post.UserId)
+			return
+		}
+		if matched, _ := regexp.MatchString(globalRegexOptions+`\btgif\b`, post.Message); matched {
+			CreateReply("tgiff*", replyToId, post.UserId)
 			return
 		}
 
 		// Named commands
-		if matched := regexp.MustCompile("^@huel420-new (.*)$").FindAllStringSubmatch(post.Message, -1); matched != nil {
-			var is420 = time.Now().Month() == time.April && time.Now().Day() == 20
-			var user, _ = client.GetUser(post.UserId, "")
-			var isAdminPoggers = user.Username == "gravufo" || user.Username == "roujo"
+		if matched := regexp.MustCompile(globalRegexOptions+"^@huel420-new (.*)$").FindAllStringSubmatch(post.Message, -1); matched != nil {
+			is420 := time.Now().Month() == time.April && time.Now().Day() == 20
+			user, _ := client.GetUser(post.UserId, "")
+			isAdminPoggers := user.Username == "gravufo" || user.Username == "roujo"
+			command := matched[0][1]
 
-			var command = matched[0][1]
-			if matched, _ := regexp.MatchString(`^charge up$`, command); matched && (is420 || isAdminPoggers) {
-				var chargeValue = rand.Intn(5) - 1
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up$`, command); matched {
+				choices := []string{"no u?", "no u", ":chuckles:", "rolf"}
+				CreateReply(randomChoice(choices), replyToId, post.UserId)
+				return
+			}
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^thanks|merci|ty|thx$`, command); matched {
+				choices := []string{"de rien la", "np", "np ;)"}
+				CreateReply(randomChoice(choices), replyToId, post.UserId)
+				return
+			}
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^est-ce qu.* ?$`, command); matched {
+				choices := []string{"maybe", "??", "yess", "no", "rolf oui", "omgggg no"}
+				CreateReply(randomChoice(choices), replyToId, post.UserId)
+				return
+			}
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^I love you$`, command); matched {
+				CreateReply("<3", replyToId, post.UserId)
+				return
+			}
+
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^charge up$`, command); matched && (is420 || isAdminPoggers) {
+				chargeValue := rand.Intn(5) - 1
 				chargeMap[post.UserId] += chargeValue
-				var message string
+				message := ""
 				switch {
 				case chargeValue < 0:
 					message = "You lost " + strconv.Itoa(chargeValue*-1) + " charge points :lamo:"
@@ -232,14 +325,14 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				case chargeValue == 0:
 					message = "You gained " + strconv.Itoa(chargeValue) + " charge points :pepehands:"
 				}
-				SendMsgToDebuggingChannel(getUserMention(post.UserId)+": "+message, replyToId)
+				CreateReply(message, post.Id, post.UserId)
 				return
 			}
 
-			if matched, _ := regexp.MatchString("^charge level$", command); matched && (is420 || isAdminPoggers) {
-				var chargeValue = chargeMap[post.UserId]
-				var chargeValueStr = strconv.Itoa(chargeValue)
-				var message string
+			if matched, _ := regexp.MatchString(globalRegexOptions+"^charge level$", command); matched && (is420 || isAdminPoggers) {
+				chargeValue := chargeMap[post.UserId]
+				chargeValueStr := strconv.Itoa(chargeValue)
+				message := ""
 				switch {
 				case chargeValue < 0:
 					message = "You have " + chargeValueStr + " points charged up. :fuck:"
@@ -254,13 +347,58 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				case chargeValue >= 100:
 					message = "You have :pogchampignon: points charged up‽"
 				}
-				SendMsgToDebuggingChannel(getUserMention(post.UserId)+": "+message, replyToId)
+				CreateReply(message, post.Id, post.UserId)
+				return
+			}
+
+			// Currency conversion
+			if matched := regexp.MustCompile(globalRegexOptions+`^convert( (\d+)? ?(\w{3}) (?:to )?(\w{3}))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				// Default to 1 CAD to USD
+				from := "CAD"
+				to := "USD"
+				amount := 1.0
+				message := ""
+				var err error
+
+				// If a value was provided
+				if matched[0][1] != "" {
+					amount, err = strconv.ParseFloat(matched[0][2], 64)
+					if err != nil {
+						message = "Couldn't convert " + matched[0][2] + " to an integer."
+					}
+					from = strings.ToUpper(matched[0][3])
+					to = strings.ToUpper(matched[0][4])
+				}
+
+				amountStr := strconv.FormatFloat(amount, 'f', 2, 64)
+				convertedValue, err := commands.Convert(from, to, amount)
+				if err != nil {
+					message = "Couldn't convert " + amountStr + " " + from + " to " + to + "."
+				}
+				message = amountStr + " " + from + " = " + strconv.FormatFloat(convertedValue, 'f', 5, 64) + " " + to
+
+				CreateReply(message, post.Id, post.UserId)
+				return
+			}
+
+			// Weather
+			if matched := regexp.MustCompile(globalRegexOptions+`^weather(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				location := "Montreal"
+				if matched[0][1] != "" {
+					location = matched[0][1]
+				}
+				message, err := weatherClient.GetWeather(location)
+				if err != nil {
+					CreateReply("Couldn't get weather for "+location+".", post.Id, post.UserId)
+					return
+				}
+				CreatePost(message, post.Id)
 				return
 			}
 
 			// Rolls
-			if matched := regexp.MustCompile(`^roll(?: (\d+|:weed:))?$`).FindAllStringSubmatch(command, -1); matched != nil {
-				var requestedRoll int
+			if matched := regexp.MustCompile(globalRegexOptions+`^roll(?: (\d+|:weed:))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				requestedRoll := 0
 				if matched[0][1] == "" || matched[0][1] == ":weed:" {
 					requestedRoll = 420
 				} else if matched[0][1] == "dice" {
@@ -268,19 +406,18 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				} else {
 					requestedRoll, _ = strconv.Atoi(matched[0][1])
 				}
-				var message = rollDice(requestedRoll)
-				SendMsgToDebuggingChannel(getUserMention(post.UserId)+": "+message, replyToId)
+				message := rollDice(requestedRoll)
+				CreateReply(message, post.Id, post.UserId)
 				return
 			}
 
-			SendMsgToDebuggingChannel("Kes tu. Veux????", replyToId)
+			CreatePost("Kes tu. Veux????", replyToId)
 		}
 	}
 }
 
 func rollDice(dice int) (message string) {
-	var roll int
-	roll = rand.Intn(dice) + 1
+	roll := rand.Intn(dice) + 1
 	if dice == 420 {
 		if time.Now().Hour()%12 == 4 && time.Now().Minute() == 20 {
 			message = strconv.Itoa(roll) + " "
@@ -320,7 +457,6 @@ func SetupGracefulShutdown() {
 				webSocketClient.Close()
 			}
 
-			SendMsgToDebuggingChannel("_"+SAMPLE_NAME+" has **stopped** running_", "")
 			os.Exit(0)
 		}
 	}()
