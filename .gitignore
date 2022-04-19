@@ -95,3 +95,4 @@ matterbot
 
 .idea
 configuration/config
+config.yaml
