@@ -1,7 +1,12 @@
-FROM python:3.9
+FROM golang:alpine as build
 
-COPY ./ /jujubot/
-WORKDIR /jujubot
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY ./ /app/
+WORKDIR /app
+RUN apk add --no-cache make git
+RUN make build
 
-CMD [ "python3", "./run.py" ]
+FROM alpine
+WORKDIR /app
+COPY --from=build /app/bin/jujubot /app
+ENV CONFIG_PATH /config
+ENTRYPOINT [ "/app/jujubot" ]
