@@ -214,6 +214,21 @@ func getUserMention(userId string) string {
 	return "@" + user.Username
 }
 
+func chargeUp(userId string, multiplier int) string {
+	chargeValue := (rand.Intn(5) - 1) * multiplier
+	chargeMap[userId] += chargeValue
+	message := ""
+	switch {
+	case chargeValue < 0:
+		message = "You lost " + strconv.Itoa(chargeValue*-1) + " charge points :lamo:"
+	case chargeValue > 0:
+		message = "You gained " + strconv.Itoa(chargeValue) + " charge points :hype:"
+	case chargeValue == 0:
+		message = "You gained " + strconv.Itoa(chargeValue) + " charge points :pepehands:"
+	}
+	return message
+}
+
 func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 	// If this isn't the debugging channel then lets ignore it
 	if event.Broadcast.ChannelId != debuggingChannel.Id {
@@ -315,6 +330,16 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 			CreateReply("tgiff*", replyToId, post.UserId)
 			return
 		}
+		// charging up
+		if matched := regexp.MustCompile(globalRegexOptions+`(a{5,})h{2,}!+`).FindAllStringSubmatch(post.Message, -1); matched != nil {
+			as := matched[0][1]
+			// x1 at 5 a's
+			// +1 multiplier every time you add 8 a's
+			multiplier := (len(as) - 5) / 8 + 1
+			message := chargeUp(post.UserId, multiplier)
+			CreateReply(message, replyToId, post.UserId)
+			return
+		}
 
 		// Named commands
 		if matched := regexp.MustCompile(globalRegexOptions+"^@"+botUser.Username+" (.*)$").FindAllStringSubmatch(post.Message, -1); matched != nil {
@@ -342,17 +367,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 			}
 
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^charge up$`, command); matched && is420 {
-				chargeValue := rand.Intn(5) - 1
-				chargeMap[post.UserId] += chargeValue
-				message := ""
-				switch {
-				case chargeValue < 0:
-					message = "You lost " + strconv.Itoa(chargeValue*-1) + " charge points :lamo:"
-				case chargeValue > 0:
-					message = "You gained " + strconv.Itoa(chargeValue) + " charge points :hype:"
-				case chargeValue == 0:
-					message = "You gained " + strconv.Itoa(chargeValue) + " charge points :pepehands:"
-				}
+				message := chargeUp(post.UserId, 1)
 				CreateReply(message, post.Id, post.UserId)
 				return
 			}
