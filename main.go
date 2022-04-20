@@ -331,8 +331,8 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 			return
 		}
 		// charging up
-		if matched := regexp.MustCompile(globalRegexOptions+`(a{5,})h{2,}!+`).FindAllStringSubmatch(post.Message, -1); matched != nil {
-			match := matched[0][1]
+		if matched := regexp.MustCompile(globalRegexOptions+`a{5,}h{2,}!*`).FindAllStringSubmatch(post.Message, -1); matched != nil {
+			match := matched[0][0]
 			// x1 at 8 characters
 			// +1 multiplier every time you add 15 characters
 			multiplier := (len(match) - 8) / 15 + 1
