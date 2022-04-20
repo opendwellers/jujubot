@@ -332,10 +332,10 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 		}
 		// charging up
 		if matched := regexp.MustCompile(globalRegexOptions+`(a{5,})h{2,}!+`).FindAllStringSubmatch(post.Message, -1); matched != nil {
-			as := matched[0][1]
-			// x1 at 5 a's
-			// +1 multiplier every time you add 8 a's
-			multiplier := (len(as) - 5) / 8 + 1
+			match := matched[0][1]
+			// x1 at 8 characters
+			// +1 multiplier every time you add 15 characters
+			multiplier := (len(match) - 8) / 15 + 1
 			message := chargeUp(post.UserId, multiplier)
 			CreateReply(message, replyToId, post.UserId)
 			return
