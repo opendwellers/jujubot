@@ -48,6 +48,8 @@ spec:
               readOnly: true
               mountPath: /config/secrets.yaml
               subPath: {{ .Values.secret.key }}
+            - mountPath: /tmp
+              name: tmp-volume
       volumes:
         - name: config-volume
           configMap:
@@ -55,6 +57,9 @@ spec:
         - name: secrets-volume
           secret:
             secretName: {{ .Values.secret.name }}
+        - name: tmp-volume
+          emptyDir:
+            medium: Memory
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
