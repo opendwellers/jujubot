@@ -34,23 +34,20 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: config-volume
-              mountPath: /config
+              readOnly: true
+              mountPath: /config/config.yaml
+              subPath: {{ .Values.configMap.key }}
             - name: secrets-volume
               readOnly: true
-              mountPath: /config
+              mountPath: /config/secrets.yaml
+              subPath: {{ .Values.secret.key }}
       volumes:
         - name: config-volume
           configMap:
             name: {{ .Values.configMap.name }}
-            items:
-              - key: {{ .Values.configMap.key }}
-                path: config.yaml
         - name: secrets-volume
           secret:
             secretName: {{ .Values.secret.name }}
-            items:
-              - key: {{ .Values.secret.key }}
-                path: secrets.yaml
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
