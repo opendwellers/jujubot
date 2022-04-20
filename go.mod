@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/briandowns/openweathermap v0.16.0
+	github.com/dpatrie/urbandictionary v0.0.0-20151214192647-3b38cbf4cb81
+	github.com/gojp/kana v0.1.0
 	github.com/mattermost/mattermost-server/v5 v5.19.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.3.2

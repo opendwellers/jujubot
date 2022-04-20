@@ -1,0 +1,5 @@
+mattermost_hostname: yourdomain.tld
+team_name: TeamName
+channel_log_name: channel-name
+auth_token: yourtoken
+open_weather_api_key: apikey
