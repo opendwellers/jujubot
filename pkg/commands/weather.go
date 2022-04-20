@@ -37,7 +37,7 @@ func (w Weather) GetCurrentWeather(location string) (message string, err error) 
 
 	temp := strconv.FormatFloat(w.current.Main.Temp, 'f', 0, 64)
 	feel := strconv.FormatFloat(w.current.Main.FeelsLike, 'f', 0, 64)
-	wind := strconv.FormatFloat(w.current.Wind.Speed, 'f', 1, 64)
+	wind := strconv.FormatFloat(w.current.Wind.Speed*3.6, 'f', 1, 64) // convert to km/h
 	// dayT := strconv.FormatFloat(day.Temp.Day, 'f', 0, 64)
 
 	message = fmt.Sprintf(`### Current weather in %s
