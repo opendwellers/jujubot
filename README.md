@@ -3,25 +3,27 @@ A bot to replace a long-time lost friend on a Mattermost server
 
 ## How to use
 
-1. Install the required dependencies:
-`pip install -r requirements.txt`
+1. Make sure you have go 1.18 or higher _or_ docker.
 
-2. Create configuration files from the templates:
+
+1. Create configuration files from the templates:
   ```
-  cp mattermost_bot_settings.py.template mattermost_bot_settings.py
-  cp configuration/config_template configuration/config
+  mkdir -p data
+  cp config.yaml.template data/config.yaml
   ```
-**Note:** Don't forget to update the configuration files to match your environment.
+**Note:** Don't forget to update the configuration file to match your environment.
 
 3. Run the bot:
-`python run.py`
+`make`
 
-## Plugins
+## Structure
 
-Plugins are located in the plugins folder (duh!).
+The entrypoint is in main.go.
+The pkg directory contains the config definition and generic functions which are useful for commands processing.
 
 ## TODO
 
-* Docker image
+* ~~Docker image~~
+* Helm chart
 * ~~Dota mmr command~~
 * Reproduce huel cheeky behavior (we're getting there)
