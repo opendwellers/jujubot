@@ -43,7 +43,7 @@ func (w Weather) GetCurrentWeather(location string) (message string, err error) 
 	message = fmt.Sprintf(`### Current weather in %s
 
 | Description | Temperature | Feels Like | Humidity | Wind |
-|:---------------------------|:------------------------------------|:--------|:--------|:--------|:--------|
+|:--------|:--------|:--------|:--------|:--------|
 | %s | %s °C | %s °C | %d%% | %s km/h |`,
 		w.current.Name,
 		getDescriptionWithIcon(w.current.Weather[0].Icon, w.current.Weather[0].Description),
@@ -61,7 +61,7 @@ func (w Weather) GetWeather(location string) (message string, err error) {
 	message = fmt.Sprintf(`### Weather in %s for the next few days
 
 | Day | Description | High | Low | Humidity | Day |
-|:---------------------------|:------------------------------------|:--------|:--------|:--------|:--------|`, location)
+|:----------|:----------|:----------|:----------|:----------|:----------|`, location)
 
 	forecast := w.forecast.ForecastWeatherJson.(*owm.Forecast16WeatherData)
 	for _, day := range forecast.List {
