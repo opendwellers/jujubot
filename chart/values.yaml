@@ -10,6 +10,14 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
 
+configMap:
+  name: config
+  key: config.yaml
+
+secret:
+  name: config
+  key: secrets.yaml
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
