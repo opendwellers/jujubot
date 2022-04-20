@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gojp/kana"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/opendwellers/jujubot/pkg/commands"
 	"github.com/opendwellers/jujubot/pkg/config"
@@ -17,26 +19,43 @@ import (
 
 const globalRegexOptions = "(?i)"
 
-var chargeMap map[string]int = map[string]int{}
+var (
+	chargeMap map[string]int = map[string]int{}
 
-var client *model.Client4
-var webSocketClient *model.WebSocketClient
+	client          *model.Client4
+	webSocketClient *model.WebSocketClient
 
-var botUser *model.User
-var botTeam *model.Team
-var debuggingChannel *model.Channel
+	botUser          *model.User
+	botTeam          *model.Team
+	debuggingChannel *model.Channel
 
-var weatherClient commands.Weather
+	weatherClient commands.Weather
+
+	logger *zap.Logger
+)
+
+func initLogger() {
+	if os.Getenv("IS_DEBUG") == "true" {
+		logger, _ = zap.NewDevelopment()
+	} else {
+		logger, _ = zap.NewProduction()
+	}
+	zap.ReplaceGlobals(logger)
+}
 
 // Documentation for the Go driver can be found
 // at https://godoc.org/github.com/mattermost/platform/model#Client
 func main() {
-	zap.S().Info("loading configuration file")
+	// Init logger and config
+	initLogger()
+	defer logger.Sync()
+	logger.Info("loading configuration file")
 	config, error := config.LoadConfig()
 	if error != nil {
-		zap.S().Error("failed to load configuration file")
+		logger.Error("failed to load configuration file")
 		os.Exit(1)
 	}
+	logger.Sugar().Infow("configuration file loaded", config)
 
 	SetupGracefulShutdown()
 
@@ -365,6 +384,8 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 					amount, err = strconv.ParseFloat(matched[0][2], 64)
 					if err != nil {
 						message = "Couldn't convert " + matched[0][2] + " to an integer."
+						CreateReply(message, post.Id, post.UserId)
+						return
 					}
 					from = strings.ToUpper(matched[0][3])
 					to = strings.ToUpper(matched[0][4])
@@ -374,6 +395,8 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				convertedValue, err := commands.Convert(from, to, amount)
 				if err != nil {
 					message = "Couldn't convert " + amountStr + " " + from + " to " + to + "."
+					CreateReply(message, post.Id, post.UserId)
+					return
 				}
 				message = amountStr + " " + from + " = " + strconv.FormatFloat(convertedValue, 'f', 5, 64) + " " + to
 
@@ -393,6 +416,108 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 					return
 				}
 				CreatePost(message, post.Id)
+				return
+			}
+
+			// Urban Dictionary
+			if matched := regexp.MustCompile(globalRegexOptions+`^urban(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				word := "huel"
+				if matched[0][1] != "" {
+					word = matched[0][1]
+				}
+				result, err := commands.GetUrbanDictionaryDefinition(word)
+				if err != nil {
+					CreateReply("Couldn't get definition for "+word+".", post.Id, post.UserId)
+					return
+				}
+				message := fmt.Sprintf("%s\n\n_%s_\n\n**by: %s**\n\n`%d`:+1: `%d`:-1:", result.Definition, result.Example, result.Author, result.Upvote, result.Downvote)
+				CreatePost(message, post.Id)
+				return
+			}
+
+			// romaji
+			if matched := regexp.MustCompile(globalRegexOptions+`^romaji(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				word := matched[0][1]
+				if matched[0][1] == "" {
+					CreateReply("Please provide a word to convert.", post.Id, post.UserId)
+					return
+				}
+				message := kana.KanaToRomaji(word)
+				CreatePost(message, post.Id)
+				return
+			}
+
+			// hiragana
+			if matched := regexp.MustCompile(globalRegexOptions+`^hiragana(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				word := matched[0][1]
+				if matched[0][1] == "" {
+					CreateReply("Please provide a word to convert.", post.Id, post.UserId)
+					return
+				}
+				message := kana.RomajiToHiragana(word)
+				CreatePost(message, post.Id)
+				return
+			}
+
+			// katakana
+			if matched := regexp.MustCompile(globalRegexOptions+`^katakana(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				word := matched[0][1]
+				if matched[0][1] == "" {
+					CreateReply("Please provide a word to convert.", post.Id, post.UserId)
+					return
+				}
+				message := kana.RomajiToKatakana(word)
+				CreatePost(message, post.Id)
+				return
+			}
+
+			// wotd japanese
+			if matched := regexp.MustCompile(globalRegexOptions+`^wotd japanese.*$`).FindAllStringSubmatch(command, -1); matched != nil {
+				message, err := commands.GetWotdJapanese()
+				if err != nil {
+					CreateReply("Couldn't get WotD Japanese.", post.Id, post.UserId)
+					return
+				}
+				CreatePost(message, post.Id)
+				return
+			}
+
+			// Dota MMR
+			if matched := regexp.MustCompile(globalRegexOptions+`^mmr(?: (\d+))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				playerId := 12088460
+				message := ""
+				if matched[0][1] != "" {
+					var err error
+					playerId, err = strconv.Atoi(matched[0][1])
+					if err != nil || len(strconv.Itoa(playerId)) > 10 {
+						CreateReply(fmt.Sprintf("lel nice fake player id: %d.", playerId), post.Id, post.UserId)
+						return
+					}
+				}
+
+				mmr, err := commands.GetDotaMMR(playerId)
+				if err != nil {
+					CreateReply(fmt.Sprintf("rofl %d existe meme pas zzz", playerId), post.Id, post.UserId)
+					return
+				}
+				if playerId == 12088460 {
+					message = fmt.Sprintf("lel j'suis rendu %d ez gaem road to 4k", mmr.SoloCompetitiveRank)
+					CreateReply(message, post.Id, post.UserId)
+					return
+				} else if playerId == 53515020 {
+					mmr.SoloCompetitiveRank = 9000
+				}
+
+				switch {
+				case mmr.SoloCompetitiveRank <= 0:
+					message = "unranked pleb or hidden mmr"
+				case mmr.SoloCompetitiveRank < 4500:
+					message = fmt.Sprintf("lel %s is only %d mmr scrub, git gud", mmr.Profile.Personaname, mmr.SoloCompetitiveRank)
+				case mmr.SoloCompetitiveRank >= 4500:
+					message = fmt.Sprintf("lel %s is %d mmr what an amazing player", mmr.Profile.Personaname, mmr.SoloCompetitiveRank)
+				}
+
+				CreateReply(message, post.Id, post.UserId)
 				return
 			}
 

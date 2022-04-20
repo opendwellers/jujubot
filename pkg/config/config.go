@@ -15,18 +15,18 @@ const (
 )
 
 type Config struct {
-	Hostname          string `mapstructure:"hostname"`
-	ServerURL         string `mapstructure:"server_url"`
-	ServerWSURL       string `mapstructure:"server_ws_url"`
-	TeamName          string `mapstructure:"team_name"`
-	ChannelLogName    string `mapstructure:"channel_log_name"`
-	AuthToken         string `mapstructure:"auth_token"`
-	OpenWeatherApiKey string `mapstructure:"open_weather_api_key"`
+	MattermostHostname string `mapstructure:"mattermost_hostname"`
+	ServerURL          string `mapstructure:"server_url"`
+	ServerWSURL        string `mapstructure:"server_ws_url"`
+	TeamName           string `mapstructure:"team_name"`
+	ChannelLogName     string `mapstructure:"channel_log_name"`
+	AuthToken          string `mapstructure:"auth_token"`
+	OpenWeatherApiKey  string `mapstructure:"open_weather_api_key"`
 }
 
 func LoadConfig() (config Config, err error) {
 
-	_ = viper.BindEnv("hostname", "HOSTNAME")
+	_ = viper.BindEnv("mattermost_hostname", "MATTERMOST_HOSTNAME")
 	_ = viper.BindEnv("server_url", "SERVER_URL")
 	_ = viper.BindEnv("server_ws_url", "SERVER_WS_URL")
 	_ = viper.BindEnv("team_name", "TEAM_NAME")
@@ -65,10 +65,11 @@ func LoadConfig() (config Config, err error) {
 		return config, errors.Wrap(err, "failed to unmarshal config")
 	}
 	if config.ServerURL == "" {
-		config.ServerURL = "https://" + config.Hostname
+		config.ServerURL = "https://" + config.MattermostHostname
 	}
 	if config.ServerWSURL == "" {
-		config.ServerWSURL = "wss://" + config.Hostname
+		config.ServerWSURL = "wss://" + config.MattermostHostname
 	}
+	zap.S().Info("configuration loaded", "config", config)
 	return config, nil
 }
