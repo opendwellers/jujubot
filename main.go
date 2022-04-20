@@ -447,7 +447,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 			}
 
 			// Weather
-			if matched := regexp.MustCompile(globalRegexOptions+`^weather ?(\w+)? ?(\w+)?$`).FindAllStringSubmatch(command, -1); matched != nil {
+			if matched := regexp.MustCompile(globalRegexOptions+`^weather ?((now) (.*)|(.*))$`).FindAllStringSubmatch(command, -1); matched != nil {
 				message := ""
 				location := ""
 				var err error
