@@ -103,6 +103,9 @@ func main() {
 			webSocketClient, err = model.NewWebSocketClient4(config.ServerWSURL, client.AuthToken)
 			if err != nil {
 				logger.Sugar().Error("Failed to connect to the web socket", zap.Any("error", err))
+				// Sleep for a bit before trying to reconnect
+				time.Sleep(5 * time.Second)
+				continue
 			}
 			listen()
 		}
