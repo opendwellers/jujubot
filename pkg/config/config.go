@@ -35,7 +35,7 @@ func LoadConfig() (config Config, err error) {
 
 	configPath := os.Getenv(ConfigPathKey)
 	if configPath == "" {
-		zap.S().Info("no configuration file provided, defaulting to current directory")
+		zap.S().Warn("no configuration file provided, defaulting to current directory")
 		configPath = "."
 	}
 	viper.AddConfigPath(configPath)
@@ -44,12 +44,12 @@ func LoadConfig() (config Config, err error) {
 		fileName := file.Name()
 		lastDotIndex := strings.LastIndex(fileName, ".")
 		if lastDotIndex == -1 {
-			zap.S().Info("File without extension will be ignored", "filename", fileName)
+			zap.S().Debug("File without extension will be ignored", "filename", fileName)
 			continue
 		}
 		extFile := filepath.Ext(file.Name())
 		if extFile != ".yaml" && extFile != ".yml" {
-			zap.S().Info("File not in a yaml format, will be ignored", "filename", fileName)
+			zap.S().Debug("File not in a yaml format, will be ignored", "filename", fileName)
 			continue
 		}
 		viper.SetConfigName(fileName[:lastDotIndex])
@@ -70,6 +70,6 @@ func LoadConfig() (config Config, err error) {
 	if config.ServerWSURL == "" {
 		config.ServerWSURL = "wss://" + config.MattermostHostname
 	}
-	zap.S().Info("configuration loaded", "config", config)
+	zap.S().Debug("configuration loaded: ", zap.Any("config", config))
 	return config, nil
 }

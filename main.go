@@ -49,16 +49,17 @@ func main() {
 	// Init logger and config
 	initLogger()
 	defer logger.Sync()
-	logger.Info("loading configuration file")
+	logger.Sugar().Info("Loading configuration")
 	config, error := config.LoadConfig()
 	if error != nil {
-		logger.Error("failed to load configuration file")
+		logger.Sugar().Error("Failed to load configuration")
 		os.Exit(1)
 	}
-	logger.Sugar().Infow("configuration file loaded", config)
+	logger.Sugar().Info("Configuration loaded")
 
 	SetupGracefulShutdown()
 
+	logger.Sugar().Info("Connecting to Mattermost at " + config.ServerURL)
 	client = model.NewAPIv4Client(config.ServerURL)
 
 	// Lets test to see if the mattermost server is up and running
@@ -83,15 +84,14 @@ func main() {
 	var clientErr = error
 	weatherClient, clientErr = commands.NewWeatherClient(config.OpenWeatherApiKey)
 	if clientErr != nil {
-		zap.S().Error("failed to create weather client")
+		logger.Sugar().Error("Failed to create weather client")
 		os.Exit(1)
 	}
 
 	// Lets start listening to some channels via the websocket!
 	webSocketClient, err := model.NewWebSocketClient4(config.ServerWSURL, client.AuthToken)
 	if err != nil {
-		println("failed to connect to the web socket")
-		PrintError(err)
+		logger.Sugar().Error("Failed to connect to the web socket", zap.Any("error", err))
 	}
 
 	webSocketClient.Listen()
@@ -106,9 +106,9 @@ func main() {
 	// This is used by the health checker to determine if the bot is running
 	// If the file is not present, the health checker will return a 500
 	// and the bot will not be considered healthy
-	f, er := os.Create("/tmp/healthy")
+	f, er := os.Create("/tmp/ready")
 	if er != nil {
-		logger.Error("failed to create /tmp/healthy")
+		logger.Sugar().Error("Failed to create /tmp/ready")
 		os.Exit(1)
 	}
 	f.Close()
@@ -119,11 +119,10 @@ func main() {
 
 func MakeSureServerIsRunning() {
 	if props, resp := client.GetOldClientConfig(""); resp.Error != nil {
-		println("There was a problem pinging the Mattermost server.  Are you sure it's running?")
-		PrintError(resp.Error)
+		logger.Sugar().Error("There was a problem pinging the Mattermost server.  Are you sure it's running?", zap.Any("error", resp.Error))
 		os.Exit(1)
 	} else {
-		println("Server detected and is running version " + props["Version"])
+		logger.Sugar().Info("Server detected and is running version " + props["Version"])
 	}
 }
 
@@ -132,29 +131,26 @@ func LoginAsTheBotUser(token string) {
 	var user *model.User
 	var resp *model.Response
 	if user, resp = client.GetMe(""); resp.Error != nil {
-		println("There was a problem getting the user")
-		PrintError(resp.Error)
+		logger.Sugar().Error("There was a problem getting the user", zap.Any("error", resp.Error))
 		os.Exit(1)
 	}
 	botUser = user
-	println("Running as " + user.Username)
+	logger.Sugar().Info("Running as " + user.Username)
 }
 
 func FindBotTeam(teamName string) {
 	if team, resp := client.GetTeamByName(teamName, ""); resp.Error != nil {
-		println("We failed to get the initial load")
-		println("or we do not appear to be a member of the team '" + teamName + "'")
-		PrintError(resp.Error)
+		logger.Sugar().Error("Failed to get the initial load or we do not appear to be a member of the team '"+teamName+"'", zap.Any("error", resp.Error))
 		os.Exit(1)
 	} else {
+		logger.Sugar().Info("Found team " + team.Name)
 		botTeam = team
 	}
 }
 
 func CreateBotDebuggingChannelIfNeeded(channelName string) {
 	if rchannel, resp := client.GetChannelByName(channelName, botTeam.Id, ""); resp.Error != nil {
-		println("We failed to get the channels")
-		PrintError(resp.Error)
+		logger.Sugar().Error("Failed to get the channels", zap.Any("error", resp.Error))
 	} else {
 		debuggingChannel = rchannel
 		return
@@ -168,11 +164,10 @@ func CreateBotDebuggingChannelIfNeeded(channelName string) {
 	channel.Type = model.CHANNEL_OPEN
 	channel.TeamId = botTeam.Id
 	if rchannel, resp := client.CreateChannel(channel); resp.Error != nil {
-		println("We failed to create the channel " + channelName)
-		PrintError(resp.Error)
+		logger.Sugar().Error("Failed to create the channel "+channelName, zap.Any("error", resp.Error))
 	} else {
 		debuggingChannel = rchannel
-		println("Looks like this might be the first run so we've created the channel " + channelName)
+		logger.Sugar().Info("Looks like this might be the first run so we've created the channel " + channelName)
 	}
 }
 
@@ -188,21 +183,19 @@ func CreatePost(msg string, replyToId string) {
 	post.RootId = replyToId
 
 	if _, resp := client.CreatePost(post); resp.Error != nil {
-		println("We failed to send a message to the logging channel")
-		PrintError(resp.Error)
+		logger.Sugar().Error("Failed to send a message to the logging channel", zap.Any("error", resp.Error))
 	}
 }
 
 func CreateReaction(emojiName string, postId string) {
 	reaction := &model.Reaction{UserId: botUser.Id, PostId: postId, EmojiName: emojiName}
 	if _, resp := client.SaveReaction(reaction); resp.Error != nil {
-		println("We failed to add a reaction to the post")
-		PrintError(resp.Error)
+		logger.Sugar().Error("Failed to add a reaction to the post", zap.Any("error", resp.Error))
 	}
 }
 
 func HandleWebSocketResponse(event *model.WebSocketEvent) {
-	HandleMsgFromDebuggingChannel(event)
+	HandleMessage(event)
 }
 
 func randomChoice(choices []string) string {
@@ -237,7 +230,8 @@ func getCharge(userId string) int {
 	}
 }
 
-func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
+func HandleMessage(event *model.WebSocketEvent) {
+	logger.Sugar().Debug("Got event: ", event)
 	// If this isn't the debugging channel then lets ignore it
 	if event.Broadcast.ChannelId != debuggingChannel.Id {
 		return
@@ -255,6 +249,9 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 		if post.UserId == botUser.Id {
 			return
 		}
+
+		user, _ := client.GetUser(post.UserId, "")
+		logger.Sugar().Info("Processing message: ", post.Message, " from user: ", user.Username)
 
 		replyToId := ""
 		if post.RootId != "" {
@@ -343,7 +340,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 			match := matched[0][0]
 			// x1 at 8 characters
 			// +1 multiplier every time you add 15 characters
-			multiplier := (len(match) - 8) / 15 + 1
+			multiplier := (len(match)-8)/15 + 1
 			message := chargeUp(post.UserId, multiplier)
 			CreateReply(message, replyToId, post.UserId)
 			return
@@ -604,13 +601,6 @@ func rollDice(dice int, userId string) (message string) {
 	}
 
 	return message
-}
-
-func PrintError(err *model.AppError) {
-	println("\tError Details:")
-	println("\t\t" + err.Message)
-	println("\t\t" + err.Id)
-	println("\t\t" + err.DetailedError)
 }
 
 func SetupGracefulShutdown() {
