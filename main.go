@@ -253,7 +253,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 		}
 
 		user, _ := client.GetUser(post.UserId, "")
-		logger.Sugar().Info("Processing message: ", post.Message, " from user: ", user.Username)
+		logger.Sugar().Info("Processing message from user ", user.Username, ": ", post.Message)
 
 		replyToId := ""
 		if post.RootId != "" {
