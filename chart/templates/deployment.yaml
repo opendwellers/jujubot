@@ -50,6 +50,8 @@ spec:
               subPath: {{ .Values.secret.key }}
             - mountPath: /tmp
               name: tmp-volume
+            - mountPath: /etc/localtime
+              name: timezone-volume
       volumes:
         - name: config-volume
           configMap:
@@ -60,6 +62,10 @@ spec:
         - name: tmp-volume
           emptyDir:
             medium: Memory
+        - name: timezone-volume
+          hostPath:
+            path: /etc/localtime
+            type: File
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
