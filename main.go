@@ -314,11 +314,11 @@ func HandleMessage(event *model.WebSocketEvent) {
 			return
 		}
 
-		if matched, _ := regexp.MatchString(globalRegexOptions+`;-?\)|:wink:`, post.Message); matched {
+		if matched, _ := regexp.MatchString(globalRegexOptions+`;-?\)(\s|$)|:wink:`, post.Message); matched {
 			CreateReaction("wink", post.Id)
 			return
 		}
-		if matched, _ := regexp.MatchString(globalRegexOptions+`:-?P|:stuck_out_tongue:`, post.Message); matched {
+		if matched, _ := regexp.MatchString(globalRegexOptions+`:-?P(\s|$)|:stuck_out_tongue:`, post.Message); matched {
 			CreateReaction("stuck_out_tongue", post.Id)
 			return
 		}
@@ -326,12 +326,12 @@ func HandleMessage(event *model.WebSocketEvent) {
 			CreateReaction("fuck", post.Id)
 			return
 		}
-		if matched, _ := regexp.MatchString(globalRegexOptions+`\^`, post.Message); matched {
+		if matched, _ := regexp.MatchString(globalRegexOptions+`(\s|^)\^(\s|$)`, post.Message); matched {
 			CreatePost(post.ChannelId, "^", replyToId)
 			CreateReaction("point_up_2", post.Id)
 			return
 		}
-		if matched, _ := regexp.MatchString(globalRegexOptions+`\bthis\b`, post.Message); matched {
+		if matched, _ := regexp.MatchString(globalRegexOptions+`^this$`, post.Message); matched {
 			CreatePost(post.ChannelId, "this", replyToId)
 			CreateReaction("point_up_2", post.Id)
 			return
@@ -349,11 +349,15 @@ func HandleMessage(event *model.WebSocketEvent) {
 			return
 		}
 		// charging up
-		if matched := regexp.MustCompile(globalRegexOptions+`a{5,}h{2,}!*`).FindAllStringSubmatch(post.Message, -1); matched != nil {
+		if matched := regexp.MustCompile(globalRegexOptions+`(a{5,}h{2,}!*)|:charging_up:`).FindAllStringSubmatch(post.Message, -1); matched != nil {
 			match := matched[0][0]
+			length := len(match)
+			if match == ":charging_up:" {
+				length = rand.Intn(50) + 1
+			}
 			// x1 at 8 characters
 			// +1 multiplier every time you add 15 characters
-			multiplier := (len(match)-8)/15 + 1
+			multiplier := (length-8)/15 + 1
 			message := chargeUp(post.UserId, multiplier)
 			CreateReply(post.ChannelId, message, replyToId, post.UserId)
 			return
