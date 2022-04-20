@@ -52,8 +52,7 @@ func main() {
 	logger.Sugar().Info("Loading configuration")
 	config, error := config.LoadConfig()
 	if error != nil {
-		logger.Sugar().Error("Failed to load configuration")
-		os.Exit(1)
+		logger.Sugar().Fatal("Failed to load configuration")
 	}
 	logger.Sugar().Info("Configuration loaded")
 
@@ -80,49 +79,60 @@ func main() {
 	// Lets create a bot channel for logging debug messages into
 	CreateBotDebuggingChannelIfNeeded(config.ChannelLogName)
 
-	// Initialise weather client
+	// Initialize weather client
 	var clientErr = error
 	weatherClient, clientErr = commands.NewWeatherClient(config.OpenWeatherApiKey)
 	if clientErr != nil {
-		logger.Sugar().Error("Failed to create weather client")
-		os.Exit(1)
+		logger.Sugar().Fatal("Failed to create weather client")
 	}
 
-	// Lets start listening to some channels via the websocket!
-	webSocketClient, err := model.NewWebSocketClient4(config.ServerWSURL, client.AuthToken)
-	if err != nil {
-		logger.Sugar().Error("Failed to connect to the web socket", zap.Any("error", err))
-	}
-
-	webSocketClient.Listen()
-
-	go func() {
-		for resp := range webSocketClient.EventChannel {
-			HandleWebSocketResponse(resp)
-		}
-	}()
-
-	// Create file at /tmp/healthy
-	// This is used by the health checker to determine if the bot is running
-	// If the file is not present, the health checker will return a 500
-	// and the bot will not be considered healthy
+	// Create file at /tmp/ready
+	// This is used by the readiness probe to determine if the bot is running
 	f, er := os.Create("/tmp/ready")
 	if er != nil {
-		logger.Sugar().Error("Failed to create /tmp/ready")
-		os.Exit(1)
+		logger.Sugar().Fatal("Failed to create /tmp/ready")
 	}
 	f.Close()
 
 	logger.Sugar().Info("Bot is now running and listening to messages.")
 
+	go func() {
+		for {
+			// Lets start listening to some channels via the websocket!
+			var err *model.AppError
+			webSocketClient, err = model.NewWebSocketClient4(config.ServerWSURL, client.AuthToken)
+			if err != nil {
+				logger.Sugar().Error("Failed to connect to the web socket", zap.Any("error", err))
+			}
+			listen()
+		}
+	}()
+
 	// You can block forever with
 	select {}
 }
 
+func listen() {
+	webSocketClient.Listen()
+	defer webSocketClient.Close()
+	for {
+		if webSocketClient.ListenError != nil {
+			logger.Sugar().Error("Failed to listen to the web socket: ", zap.Any("error", webSocketClient.ListenError))
+			logger.Sugar().Info("Reconnecting to the web socket")
+			return
+		}
+
+		event := <-webSocketClient.EventChannel
+		if event == nil {
+			continue
+		}
+		HandleWebSocketResponse(event)
+	}
+}
+
 func MakeSureServerIsRunning() {
 	if props, resp := client.GetOldClientConfig(""); resp.Error != nil {
-		logger.Sugar().Error("There was a problem pinging the Mattermost server.  Are you sure it's running?", zap.Any("error", resp.Error))
-		os.Exit(1)
+		logger.Sugar().Fatal("There was a problem pinging the Mattermost server.  Are you sure it's running?", zap.Any("error", resp.Error))
 	} else {
 		logger.Sugar().Info("Server detected and is running version " + props["Version"])
 	}
@@ -133,8 +143,7 @@ func LoginAsTheBotUser(token string) {
 	var user *model.User
 	var resp *model.Response
 	if user, resp = client.GetMe(""); resp.Error != nil {
-		logger.Sugar().Error("There was a problem getting the user", zap.Any("error", resp.Error))
-		os.Exit(1)
+		logger.Sugar().Fatal("There was a problem getting the user", zap.Any("error", resp.Error))
 	}
 	botUser = user
 	logger.Sugar().Info("Running as " + user.Username)
@@ -142,8 +151,7 @@ func LoginAsTheBotUser(token string) {
 
 func FindBotTeam(teamName string) {
 	if team, resp := client.GetTeamByName(teamName, ""); resp.Error != nil {
-		logger.Sugar().Error("Failed to get the initial load or we do not appear to be a member of the team '"+teamName+"'", zap.Any("error", resp.Error))
-		os.Exit(1)
+		logger.Sugar().Fatal("Failed to get the initial load or we do not appear to be a member of the team '"+teamName+"'", zap.Any("error", resp.Error))
 	} else {
 		logger.Sugar().Info("Found team " + team.Name)
 		botTeam = team
@@ -185,7 +193,7 @@ func CreatePost(channelId string, msg string, replyToId string) {
 	post.RootId = replyToId
 
 	if _, resp := client.CreatePost(post); resp.Error != nil {
-		logger.Sugar().Error("Failed to send a message to the logging channel", zap.Any("error", resp.Error))
+		logger.Sugar().Error("Failed to send a message to the channel", zap.Any("error", resp.Error))
 	}
 }
 
@@ -436,12 +444,29 @@ func HandleMessage(event *model.WebSocketEvent) {
 			}
 
 			// Weather
-			if matched := regexp.MustCompile(globalRegexOptions+`^weather(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
-				location := "Montreal"
-				if matched[0][1] != "" {
-					location = matched[0][1]
+			if matched := regexp.MustCompile(globalRegexOptions+`^weather ?(\w+)? ?(\w+)?$`).FindAllStringSubmatch(command, -1); matched != nil {
+				message := ""
+				location := ""
+				var err error
+				subcommand := strings.ToLower(matched[0][1])
+
+				// Default to Montreal if no location is provided
+				if subcommand == "" || (subcommand == "now" && matched[0][2] == "") {
+					location = "Montreal"
+				} else if subcommand != "" && subcommand != "now" {
+					// If a location was provided
+					location = subcommand
+				} else {
+					// If a location was provided for the now subcommand
+					location = matched[0][2]
 				}
-				message, err := weatherClient.GetWeather(location)
+
+				if subcommand == "now" {
+					message, err = weatherClient.GetCurrentWeather(location)
+				} else {
+					message, err = weatherClient.GetWeather(location)
+				}
+
 				if err != nil {
 					CreateReply(post.ChannelId, "Couldn't get weather for "+location+".", post.Id, post.UserId)
 					return

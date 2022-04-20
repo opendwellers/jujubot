@@ -29,16 +29,41 @@ func NewWeatherClient(apiKey string) (weather Weather, err error) {
 	return
 }
 
-func (weather Weather) GetWeather(location string) (string, error) {
-	// weather.current.CurrentByName(location)
-	weather.forecast.DailyByName(location, 5)
+func (w Weather) GetCurrentWeather(location string) (message string, err error) {
+	err = w.current.CurrentByName(location)
+	if err != nil {
+		return
+	}
 
-	message := fmt.Sprintf(`### Weather in %s for the next few days
+	temp := strconv.FormatFloat(w.current.Main.Temp, 'f', 0, 64)
+	feel := strconv.FormatFloat(w.current.Main.FeelsLike, 'f', 0, 64)
+	wind := strconv.FormatFloat(w.current.Wind.Speed, 'f', 1, 64)
+	// dayT := strconv.FormatFloat(day.Temp.Day, 'f', 0, 64)
+
+	message = fmt.Sprintf(`### Current weather in %s
+
+| Description | Temperature | Feels Like | Humidity | Wind |
+|:---------------------------|:------------------------------------|:--------|:--------|:--------|:--------|
+| %s | %s °C | %s °C | %d%% | %s km/h |`,
+		w.current.Name,
+		getDescriptionWithIcon(w.current.Weather[0].Icon, w.current.Weather[0].Description),
+		temp,
+		feel,
+		w.current.Main.Humidity,
+		wind)
+
+	return
+}
+
+func (w Weather) GetWeather(location string) (message string, err error) {
+	w.forecast.DailyByName(location, 5)
+
+	message = fmt.Sprintf(`### Weather in %s for the next few days
 
 | Day | Description | High | Low | Humidity | Day |
 |:---------------------------|:------------------------------------|:--------|:--------|:--------|:--------|`, location)
 
-	forecast := weather.forecast.ForecastWeatherJson.(*owm.Forecast16WeatherData)
+	forecast := w.forecast.ForecastWeatherJson.(*owm.Forecast16WeatherData)
 	for _, day := range forecast.List {
 		text := getWeatherLine(day)
 		message += text
