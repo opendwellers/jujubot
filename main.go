@@ -317,10 +317,8 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 		}
 
 		// Named commands
-		if matched := regexp.MustCompile(globalRegexOptions+"^@huel420-new (.*)$").FindAllStringSubmatch(post.Message, -1); matched != nil {
+		if matched := regexp.MustCompile(globalRegexOptions+"^@"+botUser.Username+" (.*)$").FindAllStringSubmatch(post.Message, -1); matched != nil {
 			is420 := time.Now().Month() == time.April && time.Now().Day() == 20
-			user, _ := client.GetUser(post.UserId, "")
-			isAdminPoggers := user.Username == "gravufo" || user.Username == "roujo"
 			command := matched[0][1]
 
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up$`, command); matched {
@@ -333,7 +331,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				CreateReply(randomChoice(choices), replyToId, post.UserId)
 				return
 			}
-			if matched, _ := regexp.MatchString(globalRegexOptions+`^est-ce qu.* ?$`, command); matched {
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^est-ce qu.*$`, command); matched {
 				choices := []string{"maybe", "??", "yess", "no", "rolf oui", "omgggg no"}
 				CreateReply(randomChoice(choices), replyToId, post.UserId)
 				return
@@ -343,7 +341,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				return
 			}
 
-			if matched, _ := regexp.MatchString(globalRegexOptions+`^charge up$`, command); matched && (is420 || isAdminPoggers) {
+			if matched, _ := regexp.MatchString(globalRegexOptions+`^charge up$`, command); matched && is420 {
 				chargeValue := rand.Intn(5) - 1
 				chargeMap[post.UserId] += chargeValue
 				message := ""
@@ -359,7 +357,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				return
 			}
 
-			if matched, _ := regexp.MatchString(globalRegexOptions+"^charge level$", command); matched && (is420 || isAdminPoggers) {
+			if matched, _ := regexp.MatchString(globalRegexOptions+"^charge level$", command); matched && is420 {
 				chargeValue := chargeMap[post.UserId]
 				chargeValueStr := strconv.Itoa(chargeValue)
 				message := ""
