@@ -113,6 +113,8 @@ func main() {
 	}
 	f.Close()
 
+	logger.Sugar().Info("Bot is now running and listening to messages.")
+
 	// You can block forever with
 	select {}
 }
@@ -171,13 +173,13 @@ func CreateBotDebuggingChannelIfNeeded(channelName string) {
 	}
 }
 
-func CreateReply(msg string, replyToId string, replyToUserId string) {
-	CreatePost(getUserMention(replyToUserId)+": "+msg, replyToId)
+func CreateReply(channelId string, msg string, replyToId string, replyToUserId string) {
+	CreatePost(channelId, getUserMention(replyToUserId)+": "+msg, replyToId)
 }
 
-func CreatePost(msg string, replyToId string) {
+func CreatePost(channelId string, msg string, replyToId string) {
 	post := &model.Post{}
-	post.ChannelId = debuggingChannel.Id
+	post.ChannelId = channelId
 	post.Message = msg
 
 	post.RootId = replyToId
@@ -233,9 +235,9 @@ func getCharge(userId string) int {
 func HandleMessage(event *model.WebSocketEvent) {
 	logger.Sugar().Debug("Got event: ", event)
 	// If this isn't the debugging channel then lets ignore it
-	if event.Broadcast.ChannelId != debuggingChannel.Id {
-		return
-	}
+	// if event.Broadcast.ChannelId != debuggingChannel.Id {
+	// 	return
+	// }
 
 	// Lets only reply to messages posted events
 	if event.Event != model.WEBSOCKET_EVENT_POSTED {
@@ -261,43 +263,43 @@ func HandleMessage(event *model.WebSocketEvent) {
 		// if you see any word matching 'hello' then respond
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\bsalut|allo\b`, post.Message); matched {
 			choices := []string{"aaaaaaayyeee", "sup", "yo"}
-			CreateReply(randomChoice(choices), replyToId, post.UserId)
+			CreateReply(post.ChannelId, randomChoice(choices), replyToId, post.UserId)
 			return
 		}
 
 		if matched := regexp.MustCompile(globalRegexOptions+`(xd+)`).FindAllStringSubmatch(post.Message, -1); matched != nil {
-			CreatePost("haha "+matched[0][1], replyToId)
+			CreatePost(post.ChannelId, "haha "+matched[0][1], replyToId)
 			return
 		}
 
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\banime|animuh|weeb|weaboo\b`, post.Message); matched {
-			CreatePost("### Disgusting weebs rolf :huel:", replyToId)
+			CreatePost(post.ChannelId, "### Disgusting weebs rolf :huel:", replyToId)
 			return
 		}
 
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\bvidya|bonshommes\b`, post.Message); matched {
-			CreatePost("rolf vous avez quel age?", replyToId)
+			CreatePost(post.ChannelId, "rolf vous avez quel age?", replyToId)
 			return
 		}
 
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\bvelo.*hiver\b`, post.Message); matched {
-			CreatePost("wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:", replyToId)
+			CreatePost(post.ChannelId, "wow cest fukin dangereux faut vraiment etre retarded pour cycler en hiver (dans une tempete de verglas) :huel:", replyToId)
 			return
 		}
 
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\b:disappear:|peace|alp|bye|:wave:|see ya|au revoir|ciao|chow|a tantot\b`, post.Message); matched {
-			CreatePost("hey salut la, a prochaine, on se revoit, stait bin lfun", replyToId)
+			CreatePost(post.ChannelId, "hey salut la, a prochaine, on se revoit, stait bin lfun", replyToId)
 			return
 		}
 
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\bbon matin|morning|mornin\b`, post.Message); matched {
 			choices := []string{"zzzz kill me now", "omgggggg"}
-			CreatePost(randomChoice(choices), replyToId)
+			CreatePost(post.ChannelId, randomChoice(choices), replyToId)
 			return
 		}
 
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\bmirin\b`, post.Message); matched {
-			CreateReply("fucking mirin", replyToId, post.UserId)
+			CreateReply(post.ChannelId, "fucking mirin", replyToId, post.UserId)
 			return
 		}
 
@@ -314,25 +316,25 @@ func HandleMessage(event *model.WebSocketEvent) {
 			return
 		}
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\^`, post.Message); matched {
-			CreatePost("^", replyToId)
+			CreatePost(post.ChannelId, "^", replyToId)
 			CreateReaction("point_up_2", post.Id)
 			return
 		}
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\bthis\b`, post.Message); matched {
-			CreatePost("this", replyToId)
+			CreatePost(post.ChannelId, "this", replyToId)
 			CreateReaction("point_up_2", post.Id)
 			return
 		}
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\breddit\b`, post.Message); matched {
-			CreateReply("\\>reddit", replyToId, post.UserId)
+			CreateReply(post.ChannelId, "\\>reddit", replyToId, post.UserId)
 			return
 		}
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\btumblr\b`, post.Message); matched {
-			CreateReply("\\>tumblr", replyToId, post.UserId)
+			CreateReply(post.ChannelId, "\\>tumblr", replyToId, post.UserId)
 			return
 		}
 		if matched, _ := regexp.MatchString(globalRegexOptions+`\btgif\b`, post.Message); matched {
-			CreateReply("tgiff*", replyToId, post.UserId)
+			CreateReply(post.ChannelId, "tgiff*", replyToId, post.UserId)
 			return
 		}
 		// charging up
@@ -342,7 +344,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 			// +1 multiplier every time you add 15 characters
 			multiplier := (len(match)-8)/15 + 1
 			message := chargeUp(post.UserId, multiplier)
-			CreateReply(message, replyToId, post.UserId)
+			CreateReply(post.ChannelId, message, replyToId, post.UserId)
 			return
 		}
 
@@ -353,27 +355,27 @@ func HandleMessage(event *model.WebSocketEvent) {
 
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^stfu|fuck you|fuck off|ta yeule|tayeule|shut up|shut the fuck up$`, command); matched {
 				choices := []string{"no u?", "no u", ":chuckles:", "rolf"}
-				CreateReply(randomChoice(choices), replyToId, post.UserId)
+				CreateReply(post.ChannelId, randomChoice(choices), replyToId, post.UserId)
 				return
 			}
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^thanks|merci|ty|thx$`, command); matched {
 				choices := []string{"de rien la", "np", "np ;)"}
-				CreateReply(randomChoice(choices), replyToId, post.UserId)
+				CreateReply(post.ChannelId, randomChoice(choices), replyToId, post.UserId)
 				return
 			}
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^est-ce qu.*$`, command); matched {
 				choices := []string{"maybe", "??", "yess", "no", "rolf oui", "omgggg no"}
-				CreateReply(randomChoice(choices), replyToId, post.UserId)
+				CreateReply(post.ChannelId, randomChoice(choices), replyToId, post.UserId)
 				return
 			}
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^I love you$`, command); matched {
-				CreateReply("<3", replyToId, post.UserId)
+				CreateReply(post.ChannelId, "<3", replyToId, post.UserId)
 				return
 			}
 
 			if matched, _ := regexp.MatchString(globalRegexOptions+`^charge up$`, command); matched && is420 {
 				message := chargeUp(post.UserId, 1)
-				CreateReply(message, post.Id, post.UserId)
+				CreateReply(post.ChannelId, message, post.Id, post.UserId)
 				return
 			}
 
@@ -395,7 +397,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 				case chargeValue >= 100:
 					message = "You have :pogchampignon: points charged up‽"
 				}
-				CreateReply(message, post.Id, post.UserId)
+				CreateReply(post.ChannelId, message, post.Id, post.UserId)
 				return
 			}
 
@@ -413,7 +415,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 					amount, err = strconv.ParseFloat(matched[0][2], 64)
 					if err != nil {
 						message = "Couldn't convert " + matched[0][2] + " to an integer."
-						CreateReply(message, post.Id, post.UserId)
+						CreateReply(post.ChannelId, message, post.Id, post.UserId)
 						return
 					}
 					from = strings.ToUpper(matched[0][3])
@@ -424,12 +426,12 @@ func HandleMessage(event *model.WebSocketEvent) {
 				convertedValue, err := commands.Convert(from, to, amount)
 				if err != nil {
 					message = "Couldn't convert " + amountStr + " " + from + " to " + to + "."
-					CreateReply(message, post.Id, post.UserId)
+					CreateReply(post.ChannelId, message, post.Id, post.UserId)
 					return
 				}
 				message = amountStr + " " + from + " = " + strconv.FormatFloat(convertedValue, 'f', 5, 64) + " " + to
 
-				CreateReply(message, post.Id, post.UserId)
+				CreateReply(post.ChannelId, message, post.Id, post.UserId)
 				return
 			}
 
@@ -441,10 +443,10 @@ func HandleMessage(event *model.WebSocketEvent) {
 				}
 				message, err := weatherClient.GetWeather(location)
 				if err != nil {
-					CreateReply("Couldn't get weather for "+location+".", post.Id, post.UserId)
+					CreateReply(post.ChannelId, "Couldn't get weather for "+location+".", post.Id, post.UserId)
 					return
 				}
-				CreatePost(message, post.Id)
+				CreatePost(post.ChannelId, message, post.Id)
 				return
 			}
 
@@ -456,11 +458,11 @@ func HandleMessage(event *model.WebSocketEvent) {
 				}
 				result, err := commands.GetUrbanDictionaryDefinition(word)
 				if err != nil {
-					CreateReply("Couldn't get definition for "+word+".", post.Id, post.UserId)
+					CreateReply(post.ChannelId, "Couldn't get definition for "+word+".", post.Id, post.UserId)
 					return
 				}
 				message := fmt.Sprintf("%s\n\n_%s_\n\n**by: %s**\n\n`%d`:+1: `%d`:-1:", result.Definition, result.Example, result.Author, result.Upvote, result.Downvote)
-				CreatePost(message, post.Id)
+				CreatePost(post.ChannelId, message, post.Id)
 				return
 			}
 
@@ -468,11 +470,11 @@ func HandleMessage(event *model.WebSocketEvent) {
 			if matched := regexp.MustCompile(globalRegexOptions+`^romaji(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
 				word := matched[0][1]
 				if matched[0][1] == "" {
-					CreateReply("Please provide a word to convert.", post.Id, post.UserId)
+					CreateReply(post.ChannelId, "Please provide a word to convert.", post.Id, post.UserId)
 					return
 				}
 				message := kana.KanaToRomaji(word)
-				CreatePost(message, post.Id)
+				CreatePost(post.ChannelId, message, post.Id)
 				return
 			}
 
@@ -480,11 +482,11 @@ func HandleMessage(event *model.WebSocketEvent) {
 			if matched := regexp.MustCompile(globalRegexOptions+`^hiragana(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
 				word := matched[0][1]
 				if matched[0][1] == "" {
-					CreateReply("Please provide a word to convert.", post.Id, post.UserId)
+					CreateReply(post.ChannelId, "Please provide a word to convert.", post.Id, post.UserId)
 					return
 				}
 				message := kana.RomajiToHiragana(word)
-				CreatePost(message, post.Id)
+				CreatePost(post.ChannelId, message, post.Id)
 				return
 			}
 
@@ -492,11 +494,11 @@ func HandleMessage(event *model.WebSocketEvent) {
 			if matched := regexp.MustCompile(globalRegexOptions+`^katakana(?: (.*))?$`).FindAllStringSubmatch(command, -1); matched != nil {
 				word := matched[0][1]
 				if matched[0][1] == "" {
-					CreateReply("Please provide a word to convert.", post.Id, post.UserId)
+					CreateReply(post.ChannelId, "Please provide a word to convert.", post.Id, post.UserId)
 					return
 				}
 				message := kana.RomajiToKatakana(word)
-				CreatePost(message, post.Id)
+				CreatePost(post.ChannelId, message, post.Id)
 				return
 			}
 
@@ -504,10 +506,10 @@ func HandleMessage(event *model.WebSocketEvent) {
 			if matched := regexp.MustCompile(globalRegexOptions+`^wotd japanese.*$`).FindAllStringSubmatch(command, -1); matched != nil {
 				message, err := commands.GetWotdJapanese()
 				if err != nil {
-					CreateReply("Couldn't get WotD Japanese.", post.Id, post.UserId)
+					CreateReply(post.ChannelId, "Couldn't get WotD Japanese.", post.Id, post.UserId)
 					return
 				}
-				CreatePost(message, post.Id)
+				CreatePost(post.ChannelId, message, post.Id)
 				return
 			}
 
@@ -519,19 +521,19 @@ func HandleMessage(event *model.WebSocketEvent) {
 					var err error
 					playerId, err = strconv.Atoi(matched[0][1])
 					if err != nil || len(strconv.Itoa(playerId)) > 10 {
-						CreateReply(fmt.Sprintf("lel nice fake player id: %d.", playerId), post.Id, post.UserId)
+						CreateReply(post.ChannelId, fmt.Sprintf("lel nice fake player id: %d.", playerId), post.Id, post.UserId)
 						return
 					}
 				}
 
 				mmr, err := commands.GetDotaMMR(playerId)
 				if err != nil {
-					CreateReply(fmt.Sprintf("rofl %d existe meme pas zzz", playerId), post.Id, post.UserId)
+					CreateReply(post.ChannelId, fmt.Sprintf("rofl %d existe meme pas zzz", playerId), post.Id, post.UserId)
 					return
 				}
 				if playerId == 12088460 {
 					message = fmt.Sprintf("lel j'suis rendu %d ez gaem road to 4k", mmr.SoloCompetitiveRank)
-					CreateReply(message, post.Id, post.UserId)
+					CreateReply(post.ChannelId, message, post.Id, post.UserId)
 					return
 				} else if playerId == 53515020 {
 					mmr.SoloCompetitiveRank = 9000
@@ -546,7 +548,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 					message = fmt.Sprintf("lel %s is %d mmr what an amazing player", mmr.Profile.Personaname, mmr.SoloCompetitiveRank)
 				}
 
-				CreateReply(message, post.Id, post.UserId)
+				CreateReply(post.ChannelId, message, post.Id, post.UserId)
 				return
 			}
 
@@ -561,11 +563,11 @@ func HandleMessage(event *model.WebSocketEvent) {
 					requestedRoll, _ = strconv.Atoi(matched[0][1])
 				}
 				message := rollDice(requestedRoll, post.UserId)
-				CreateReply(message, post.Id, post.UserId)
+				CreateReply(post.ChannelId, message, post.Id, post.UserId)
 				return
 			}
 
-			CreatePost("Kes tu. Veux????", replyToId)
+			CreatePost(post.ChannelId, "Kes tu. Veux????", replyToId)
 		}
 	}
 }
