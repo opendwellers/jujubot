@@ -102,6 +102,17 @@ func main() {
 		}
 	}()
 
+	// Create file at /tmp/healthy
+	// This is used by the health checker to determine if the bot is running
+	// If the file is not present, the health checker will return a 500
+	// and the bot will not be considered healthy
+	f, er := os.Create("/tmp/healthy")
+	if er != nil {
+		logger.Error("failed to create /tmp/healthy")
+		os.Exit(1)
+	}
+	f.Close()
+
 	// You can block forever with
 	select {}
 }
