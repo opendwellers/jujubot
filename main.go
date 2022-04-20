@@ -229,6 +229,14 @@ func chargeUp(userId string, multiplier int) string {
 	return message
 }
 
+func getCharge(userId string) int {
+	if val, ok := chargeMap[userId]; ok {
+		return val
+	} else {
+		return 0
+	}
+}
+
 func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 	// If this isn't the debugging channel then lets ignore it
 	if event.Broadcast.ChannelId != debuggingChannel.Id {
@@ -373,7 +381,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 			}
 
 			if matched, _ := regexp.MatchString(globalRegexOptions+"^charge level$", command); matched && is420 {
-				chargeValue := chargeMap[post.UserId]
+				chargeValue := getCharge(post.UserId)
 				chargeValueStr := strconv.Itoa(chargeValue)
 				message := ""
 				switch {
@@ -555,7 +563,7 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 				} else {
 					requestedRoll, _ = strconv.Atoi(matched[0][1])
 				}
-				message := rollDice(requestedRoll)
+				message := rollDice(requestedRoll, post.UserId)
 				CreateReply(message, post.Id, post.UserId)
 				return
 			}
@@ -565,11 +573,19 @@ func HandleMsgFromDebuggingChannel(event *model.WebSocketEvent) {
 	}
 }
 
-func rollDice(dice int) (message string) {
+func rollDice(dice int, userId string) (message string) {
 	roll := rand.Intn(dice) + 1
 	if dice == 420 {
-		if time.Now().Hour()%12 == 4 && time.Now().Minute() == 20 {
-			message = strconv.Itoa(roll) + " "
+		now := time.Now()
+		if now.Hour()%12 == 4 && now.Minute() == 20 {
+			chargeBonus := getCharge(userId)
+			if now.Month() == time.April && now.Day() == 20 && chargeBonus != 0 {
+				actualRoll := roll
+				roll := actualRoll + chargeBonus
+				message = strconv.Itoa(actualRoll) + " + " + strconv.Itoa(chargeBonus) + " charge bonus = " + strconv.Itoa(roll) + " "
+			} else {
+				message = strconv.Itoa(roll) + " "
+			}
 
 			if roll == 420 {
 				message += "BIG WINNER WOW :musk: :weed:"
