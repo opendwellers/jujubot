@@ -34,7 +34,7 @@ spec:
             exec:
               command:
               - cat
-              - /tmp/healthy
+              - /tmp/ready
             initialDelaySeconds: 2
             periodSeconds: 5
           resources:
