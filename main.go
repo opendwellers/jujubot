@@ -623,7 +623,7 @@ func rollDice(dice int, userId string) (message string) {
 			} else if roll == 69 {
 				message += "_Nice._ :smugpepe:"
 			} else {
-				message += ":chuckle:"
+				message += ":chuckles:"
 			}
 		} else {
 			message = "Spa leur smh"
