@@ -585,7 +585,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 			}
 
 			// Rolls
-			if matched := regexp.MustCompile(globalRegexOptions+`^roll(?: (\d+|:weed:))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+			if matched := regexp.MustCompile(globalRegexOptions+`^roll(?: (\d+|:weed:))?\s*$`).FindAllStringSubmatch(command, -1); matched != nil {
 				requestedRoll := 0
 				if matched[0][1] == "" || matched[0][1] == ":weed:" {
 					requestedRoll = 420
