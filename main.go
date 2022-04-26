@@ -585,7 +585,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 			}
 
 			// Rolls
-			if matched := regexp.MustCompile(globalRegexOptions+`^roll(?: (\d+|:weed:))?$`).FindAllStringSubmatch(command, -1); matched != nil {
+			if matched := regexp.MustCompile(globalRegexOptions+`^roll(?: (\d+|:weed:))?\s*$`).FindAllStringSubmatch(command, -1); matched != nil {
 				requestedRoll := 0
 				if matched[0][1] == "" || matched[0][1] == ":weed:" {
 					requestedRoll = 420
@@ -623,7 +623,7 @@ func rollDice(dice int, userId string) (message string) {
 			} else if roll == 69 {
 				message += "_Nice._ :smugpepe:"
 			} else {
-				message += ":chuckle:"
+				message += ":chuckles:"
 			}
 		} else {
 			message = "Spa leur smh"
