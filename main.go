@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -12,7 +13,7 @@ import (
 	"time"
 
 	"github.com/gojp/kana"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/opendwellers/jujubot/pkg/commands"
 	"github.com/opendwellers/jujubot/pkg/config"
 	"go.uber.org/zap"
@@ -135,7 +136,7 @@ func listen() {
 }
 
 func MakeSureServerIsRunning() {
-	if props, _, err := client.GetOldClientConfig(""); err != nil {
+	if props, _, err := client.GetOldClientConfig(context.TODO(), ""); err != nil {
 		logger.Sugar().Fatal("There was a problem pinging the Mattermost server.  Are you sure it's running?", zap.Any("error", err))
 	} else {
 		logger.Sugar().Info("Server detected and is running version " + props["Version"])
@@ -146,7 +147,7 @@ func LoginAsTheBotUser(token string) {
 	client.SetToken(token)
 	var user *model.User
 	var err error
-	if user, _, err = client.GetMe(""); err != nil {
+	if user, _, err = client.GetMe(context.TODO(), ""); err != nil {
 		logger.Sugar().Fatal("There was a problem getting the user", zap.Any("error", err))
 	}
 	botUser = user
@@ -154,7 +155,7 @@ func LoginAsTheBotUser(token string) {
 }
 
 func FindBotTeam(teamName string) {
-	if team, _, err := client.GetTeamByName(teamName, ""); err != nil {
+	if team, _, err := client.GetTeamByName(context.TODO(), teamName, ""); err != nil {
 		logger.Sugar().Fatal("Failed to get the initial load or we do not appear to be a member of the team '"+teamName+"'", zap.Any("error", err))
 	} else {
 		logger.Sugar().Info("Found team " + team.Name)
@@ -163,7 +164,7 @@ func FindBotTeam(teamName string) {
 }
 
 func CreateBotDebuggingChannelIfNeeded(channelName string) {
-	if rchannel, _, err := client.GetChannelByName(channelName, botTeam.Id, ""); err != nil {
+	if rchannel, _, err := client.GetChannelByName(context.TODO(), channelName, botTeam.Id, ""); err != nil {
 		logger.Sugar().Error("Failed to get the channels", zap.Any("error", err))
 	} else {
 		debuggingChannel = rchannel
@@ -177,7 +178,7 @@ func CreateBotDebuggingChannelIfNeeded(channelName string) {
 	channel.Purpose = "This is used as a test channel for logging bot debug messages"
 	channel.Type = model.ChannelTypeOpen
 	channel.TeamId = botTeam.Id
-	if rchannel, _, err := client.CreateChannel(channel); err != nil {
+	if rchannel, _, err := client.CreateChannel(context.TODO(), channel); err != nil {
 		logger.Sugar().Error("Failed to create the channel "+channelName, zap.Any("error", err))
 	} else {
 		debuggingChannel = rchannel
@@ -196,14 +197,14 @@ func CreatePost(channelId string, msg string, replyToId string) {
 
 	post.RootId = replyToId
 
-	if _, _, err := client.CreatePost(post); err != nil {
+	if _, _, err := client.CreatePost(context.TODO(), post); err != nil {
 		logger.Sugar().Error("Failed to send a message to the channel", zap.Any("error", err))
 	}
 }
 
 func CreateReaction(emojiName string, postId string) {
 	reaction := &model.Reaction{UserId: botUser.Id, PostId: postId, EmojiName: emojiName}
-	if _, _, err := client.SaveReaction(reaction); err != nil {
+	if _, _, err := client.SaveReaction(context.TODO(), reaction); err != nil {
 		logger.Sugar().Error("Failed to add a reaction to the post", zap.Any("error", err))
 	}
 }
@@ -219,7 +220,7 @@ func randomChoice(choices []string) string {
 func getUserMention(userId string) string {
 	var user *model.User
 	var err error
-	if user, _, err = client.GetUser(userId, ""); err != nil {
+	if user, _, err = client.GetUser(context.TODO(), userId, ""); err != nil {
 		logger.Sugar().Error("Failed to get user", zap.Any("error", err))
 	}
 
@@ -269,7 +270,7 @@ func HandleMessage(event *model.WebSocketEvent) {
 			return
 		}
 
-		user, _, err := client.GetUser(post.UserId, "")
+		user, _, err := client.GetUser(context.TODO(), post.UserId, "")
 		if err != nil {
 			logger.Sugar().Info("Failed to get user ", post.UserId, zap.Any("error", err))
 		}
