@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine as build
+FROM golang:1.23-alpine AS build
 
 RUN apk add --no-cache make git
 
@@ -11,5 +11,5 @@ RUN make build
 FROM alpine
 WORKDIR /app
 COPY --from=build /app/bin/jujubot /app
-ENV CONFIG_PATH /config
+ENV CONFIG_PATH="/config"
 ENTRYPOINT [ "/app/jujubot" ]
