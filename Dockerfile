@@ -9,6 +9,7 @@ COPY . .
 RUN make build
 
 FROM alpine
+RUN apk add --no-cache tzdata
 WORKDIR /app
 COPY --from=build /app/bin/jujubot /app
 ENV CONFIG_PATH="/config"
