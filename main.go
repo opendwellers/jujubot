@@ -136,7 +136,7 @@ func listen() {
 }
 
 func MakeSureServerIsRunning() {
-	if props, _, err := client.GetOldClientConfig(context.TODO(), ""); err != nil {
+	if props, _, err := client.GetClientConfig(context.TODO(), ""); err != nil {
 		logger.Sugar().Fatal("There was a problem pinging the Mattermost server.  Are you sure it's running?", zap.Any("error", err))
 	} else {
 		logger.Sugar().Info("Server detected and is running version " + props["Version"])
