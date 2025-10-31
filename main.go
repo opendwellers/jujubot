@@ -63,9 +63,6 @@ func main() {
 	logger.Sugar().Info("Connecting to Mattermost at " + config.ServerURL)
 	client = model.NewAPIv4Client(config.ServerURL)
 
-	// Lets test to see if the mattermost server is up and running
-	MakeSureServerIsRunning()
-
 	// lets attempt to login to the Mattermost server as the bot user
 	// This will set the token required for all future calls
 	// You can get this token with client.AuthToken
@@ -132,14 +129,6 @@ func listen() {
 			continue
 		}
 		HandleWebSocketResponse(event)
-	}
-}
-
-func MakeSureServerIsRunning() {
-	if props, _, err := client.GetClientConfig(context.TODO(), ""); err != nil {
-		logger.Sugar().Fatal("There was a problem pinging the Mattermost server.  Are you sure it's running?", zap.Any("error", err))
-	} else {
-		logger.Sugar().Info("Server detected and is running version " + props["Version"])
 	}
 }
 
