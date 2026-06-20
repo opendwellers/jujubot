@@ -277,11 +277,12 @@ func (b *Bot) handleDotaCommand(post *model.Post, _ string, command string, _ bo
 	}
 
 	var message string
-	if playerId == 12088460 {
+	switch playerId {
+	case 12088460:
 		message = fmt.Sprintf("lel j'suis rendu %d ez gaem road to 4k", mmr.SoloCompetitiveRank)
 		b.createReply(post.ChannelId, message, post.Id, post.UserId)
 		return true
-	} else if playerId == 53515020 {
+	case 53515020:
 		mmr.SoloCompetitiveRank = 9000
 	}
 
@@ -306,11 +307,12 @@ func (b *Bot) handleRollCommand(post *model.Post, _ string, command string, _ bo
 	}
 
 	requestedRoll := 0
-	if matched[0][1] == "" || matched[0][1] == ":weed:" {
+	switch matched[0][1] {
+	case "", ":weed:":
 		requestedRoll = 420
-	} else if matched[0][1] == "dice" {
+	case "dice":
 		requestedRoll = 6
-	} else {
+	default:
 		requestedRoll, _ = strconv.Atoi(matched[0][1])
 	}
 
@@ -332,20 +334,24 @@ func (b *Bot) rollDice(dice int, userId string) string {
 				roll = actualRoll + chargeBonus
 				message := strconv.Itoa(actualRoll) + " + " + strconv.Itoa(chargeBonus) + " charge bonus = " + strconv.Itoa(roll) + " "
 
-				if roll == 420 {
+				switch roll {
+				case 420:
 					return message + "BIG WINNER WOW :musk: :weed:"
-				} else if roll == 69 {
+				case 69:
 					return message + "_Nice._ :smugpepe:"
+				default:
+					return message + ":chuckles:"
 				}
-				return message + ":chuckles:"
 			}
 
-			if roll == 420 {
+			switch roll {
+			case 420:
 				return strconv.Itoa(roll) + " BIG WINNER WOW :musk: :weed:"
-			} else if roll == 69 {
+			case 69:
 				return strconv.Itoa(roll) + " _Nice._ :smugpepe:"
+			default:
+				return strconv.Itoa(roll) + " :chuckles:"
 			}
-			return strconv.Itoa(roll) + " :chuckles:"
 		}
 		return "Spa leur smh"
 	}

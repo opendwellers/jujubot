@@ -138,8 +138,7 @@ func (b *Bot) createReadinessFile() error {
 		zap.S().Error("Failed to create /tmp/ready", zap.Error(err))
 		return err
 	}
-	f.Close()
-	return nil
+	return f.Close()
 }
 
 // startWebSocketListener manages the WebSocket connection

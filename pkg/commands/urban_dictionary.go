@@ -12,7 +12,7 @@ func GetUrbanDictionaryDefinition(term string) (def *ud.Result, err error) {
 		return
 	}
 	if len(res.Results) == 0 {
-		err = errors.New("No results found")
+		err = errors.New("no results found")
 		return
 	}
 

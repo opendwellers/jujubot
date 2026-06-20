@@ -23,7 +23,7 @@ func Convert(from, to string, amount float64) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != 200 {
 		return 0, errors.New("Invalid response code from convert service: " + resp.Status)
 	}

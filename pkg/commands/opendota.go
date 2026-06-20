@@ -43,7 +43,7 @@ func GetDotaMMR(steamID int) (mmr DotaMMR, err error) {
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	err = json.NewDecoder(resp.Body).Decode(&mmr)
 	return

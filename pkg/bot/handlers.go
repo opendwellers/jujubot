@@ -20,9 +20,7 @@ func (b *Bot) handleEvent(event *model.WebSocketEvent) {
 	}
 
 	var post *model.Post
-	json.NewDecoder(strings.NewReader(event.GetData()["post"].(string))).Decode(&post)
-
-	if post == nil {
+	if err := json.NewDecoder(strings.NewReader(event.GetData()["post"].(string))).Decode(&post); err != nil || post == nil {
 		return
 	}
 

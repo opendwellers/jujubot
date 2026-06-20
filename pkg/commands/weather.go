@@ -56,7 +56,9 @@ func (w Weather) GetCurrentWeather(location string) (message string, err error) 
 }
 
 func (w Weather) GetWeather(location string) (message string, err error) {
-	w.forecast.DailyByName(location, 5)
+	if err = w.forecast.DailyByName(location, 5); err != nil {
+		return "", err
+	}
 
 	message = fmt.Sprintf(`### Weather in %s for the next few days
 

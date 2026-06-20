@@ -51,7 +51,7 @@ func GetWotdJapanese() (string, error) {
 	if err != nil || resp.StatusCode != 200 {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var jishoResp JishoResponse
 	err = json.NewDecoder(resp.Body).Decode(&jishoResp)

@@ -24,7 +24,7 @@ func initLogger() {
 func main() {
 	// Initialize logger
 	initLogger()
-	defer logger.Sync()
+	defer func() { _ = logger.Sync() }()
 
 	// Load configuration
 	logger.Sugar().Info("Loading configuration")
